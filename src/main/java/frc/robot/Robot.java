@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.drivechain.DriveTrain;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -19,7 +20,7 @@ public class Robot extends TimedRobot {
   private final DriveTrain tesTrain;
 
   private final RobotContainer m_robotContainer;
-
+  private final AnalogInput encoder;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -29,6 +30,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     tesTrain = new DriveTrain();
+    encoder = new AnalogInput(0);
    
   }
 
@@ -96,7 +98,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    tesTrain.drive(.2);
+    tesTrain.drive(.2, encoder);
 
   }
 
