@@ -9,8 +9,8 @@ public class DriveTrain{
         return;
     }
 
-        TalonFX motor = new TalonFX(0);
-        DutyCycleOut request = new DutyCycleOut(0);
+        private TalonFX motor = new TalonFX(0);
+        private DutyCycleOut request = new DutyCycleOut(0);
 
     public void drive(double voltPercent) {
         motor.setControl(request.withOutput(voltPercent));

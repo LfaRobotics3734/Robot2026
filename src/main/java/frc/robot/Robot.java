@@ -47,7 +47,6 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    tesTrain.drive(.1);
 
   }
 
@@ -96,7 +95,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    tesTrain.drive(.2);
+
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
