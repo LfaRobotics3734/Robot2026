@@ -17,10 +17,10 @@ import edu.wpi.first.wpilibj.AnalogInput;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private final DriveTrain tesTrain;
+  // private final DriveTrain tesTrain;
 
   private final RobotContainer m_robotContainer;
-  private final AnalogInput encoder;
+  // private final AnalogInput encoder;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -29,8 +29,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    tesTrain = new DriveTrain();
-    encoder = new AnalogInput(0);
+    // tesTrain = new DriveTrain();
+    // encoder = new AnalogInput(0);
    
   }
 
@@ -87,7 +87,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+      // tesTrain.drive(.2, encoder);
+  }
 
   @Override
   public void testInit() {
@@ -98,8 +100,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    tesTrain.drive(.2, encoder);
-
   }
 
   /** This function is called once when the robot is first started up. */
