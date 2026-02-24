@@ -28,12 +28,13 @@ public class SwerveDrive extends SubsystemBase {
         // 1. Initialize real SwerveModules (Drive ID, Steer ID, Analog Encoder ID)
         // CHECK YOUR CAN IDs AND ANALOG PORTS!
         swerveModules = new SwerveModule[] {
-            new SwerveModule(1, 2, 0), // Front Left
-            new SwerveModule(3, 4, 1), // Front Right
-            new SwerveModule(5, 6, 2), // Back Left
-            new SwerveModule(7, 8, 3)  // Back Right
+            new SwerveModule(1, 2, 0, false, .987), // Front Left
+            new SwerveModule(3, 4, 3, false, 0), // Front Right
+            new SwerveModule(7, 8, 1, true, .850),  // Back Left
+            new SwerveModule(5, 6, 2, false, .890), // Back Right
+            
         };
-        
+         
         // 2. Setup Kinematics
         kinematics = new SwerveDriveKinematics(
             new Translation2d(Units.inchesToMeters(12.5), Units.inchesToMeters(12.5)),
@@ -59,18 +60,25 @@ public class SwerveDrive extends SubsystemBase {
      * @param fieldRelative Whether inputs are relative to the field or robot
      */
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        // Convert joystick inputs to ChassisSpeeds
-        ChassisSpeeds speeds = fieldRelative 
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, gyro.getAngle())
-            : new ChassisSpeeds(xSpeed, ySpeed, rot);
-        
-        // Convert ChassisSpeeds to individual module states
+        // 1. Get the rotation. Use getRotation2d() if your gyro class has it!
+        Rotation2d currentHeading = gyro.getAngle(); 
+
+        // 2. Create ChassisSpeeds
+        ChassisSpeeds speeds;
+        if (fieldRelative) {
+            // Ensure 'rot' is definitely passed here
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, currentHeading);
+        } else {
+            speeds = new ChassisSpeeds(xSpeed, ySpeed, rot);
+        }
+
+        // 3. Convert to states
         SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(speeds);
-        
-        // Ensure the robot doesn't try to exceed its physical max speed
+
+        // 4. DESATURATION CHECK
+        // If kMaxSpeed is 4.5 but rot is high, this prevents wheels from stopping
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
-        
-        // Set the state for each module
+
         for (int i = 0; i < 4; i++) {
             swerveModules[i].setState(swerveModuleStates[i]);
         }
@@ -99,8 +107,8 @@ public class SwerveDrive extends SubsystemBase {
     // Send module data to Shuffleboard
         swerveModules[0].updateTelemetry("FL");
         swerveModules[1].updateTelemetry("FR");
-        swerveModules[2].updateTelemetry("BL");
-        swerveModules[3].updateTelemetry("BR");
+        swerveModules[2].updateTelemetry("BR");
+        swerveModules[3].updateTelemetry("BL");
     
     // Also log the Gyro
         SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees());
