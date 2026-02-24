@@ -26,7 +26,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final SwerveDrive m_swerveDrive = new SwerveDrive();
-  private final String controllerType = "XBOX"; // XBOX or JOYSTICK
+  private final String controllerType = "JOYSTICK"; // XBOX or JOYSTICK
   private CommandJoystick m_driverController;
   private CommandXboxController m_xboxController;
 
@@ -49,7 +49,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     if(controllerType.equals("XBOX")) {
-      m_xboxController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+      m_xboxController = new CommandXboxController(0);
       m_swerveDrive.setDefaultCommand(
           new TeleopDrive(
               m_swerveDrive,
@@ -60,7 +60,7 @@ public class RobotContainer {
       m_xboxController.start().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
 
     } else {
-      m_driverController = new CommandJoystick(OperatorConstants.kDriverControllerPort);
+      m_driverController = new CommandJoystick(1);
       m_swerveDrive.setDefaultCommand(
       new TeleopDrive(
             m_swerveDrive,
