@@ -55,7 +55,7 @@ public class RobotContainer {
               m_swerveDrive,
               () -> -m_xboxController.getLeftY(),  // forward/back
               () -> -m_xboxController.getLeftX(),  // strafe
-              () -> -m_xboxController.getRightX() // rotate
+              () -> m_xboxController.getRightX() // rotate
           ));
       m_xboxController.start().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
 
@@ -70,7 +70,7 @@ public class RobotContainer {
             () -> -m_driverController.getRawAxis(0), 
             // Axis 2 is often the Twist/Z-axis on flight sticks, 
             // or Axis 4 on some gamepads. Adjust as needed!
-            () -> -m_driverController.getRawAxis(2) 
+            () -> m_driverController.getRawAxis(2) 
         ));
         m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
     }

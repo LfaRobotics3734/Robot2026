@@ -54,8 +54,7 @@ public class SwerveModule {
         steerMotor.getConfigurator().apply(steerConfig);
 
         // Steer PID: Telling it that 0 and 1 (rotations) are the same point
-        // steerPID = new PIDController(0.05, 0, 0.005); // Tune these values!
-        steerPID = new PIDController(0.5, 0, 0);
+        steerPID = new PIDController(0.4, 0, 0);
         steerPID.enableContinuousInput(0, 1); 
 
         
@@ -107,9 +106,9 @@ public class SwerveModule {
         double distanceMeters = (motorRotations / gearRatio) * wheelCircumference;
 
         // 2. Get angle from Analog Encoder (0 to 1 rotations)
-        Rotation2d angle = Rotation2d.fromRotations(absoluteEncoder.get());
+        // Rotation2d angle = Rotation2d.fromRotations(absoluteEncoder.get());
 
-        return new SwerveModulePosition(distanceMeters, angle);
+        return new SwerveModulePosition(distanceMeters, getAngle());
     }
 
     public void updateTelemetry(String name) {
@@ -126,6 +125,7 @@ public class SwerveModule {
     public Rotation2d getAngle() {
     // Subtract the offset from the raw reading
         double correctedRotations = absoluteEncoder.get() - angleOffset;
+        correctedRotations = ((correctedRotations % 1.0) + 1.0) % 1.0;
         return Rotation2d.fromRotations(correctedRotations);
     }
 }
