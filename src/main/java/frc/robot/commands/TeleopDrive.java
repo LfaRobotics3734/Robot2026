@@ -27,8 +27,8 @@ public class TeleopDrive extends Command {
     public void execute() {
         // 1. Apply Deadband (ignores small inputs under 10%)
         // 2. Scale by Max Speed
-        double x = MathUtil.applyDeadband(vX.getAsDouble(), 0.1) * SwerveDrive.kMaxSpeed;
-        double y = MathUtil.applyDeadband(vY.getAsDouble(), 0.1) * SwerveDrive.kMaxSpeed;
+        double x = MathUtil.applyDeadband(vX.getAsDouble(), 0.05) * SwerveDrive.kMaxSpeed;
+        double y = MathUtil.applyDeadband(vY.getAsDouble(), 0.05) * SwerveDrive.kMaxSpeed;
         
         // Rotation usually feels better a bit slower (e.g., 2 rotations per second)
         double rot = MathUtil.applyDeadband(vRot.getAsDouble(), 0.1) * (Math.PI * 2);

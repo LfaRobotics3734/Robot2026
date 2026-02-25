@@ -20,7 +20,7 @@ public class SwerveDrive extends SubsystemBase {
     private final SwerveModule[] swerveModules;
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!
-    public static final double kMaxSpeed = 4.5; 
+    public static final double kMaxSpeed = 1; 
 
     public SwerveDrive() {
         gyro = new Gyroscope();
@@ -28,10 +28,10 @@ public class SwerveDrive extends SubsystemBase {
         // 1. Initialize real SwerveModules (Drive ID, Steer ID, Analog Encoder ID)
         // CHECK YOUR CAN IDs AND ANALOG PORTS!
         swerveModules = new SwerveModule[] {
-            new SwerveModule(1, 2, 0, false, .987), // Front Left
-            new SwerveModule(3, 4, 3, false, 0), // Front Right
-            new SwerveModule(7, 8, 1, true, .850),  // Back Left
-            new SwerveModule(5, 6, 2, false, .890), // Back Right
+            new SwerveModule(1, 2, 0, false, true, .9879), // Front Left
+            new SwerveModule(3, 4, 3, false, false, .8629), // Front Right
+            new SwerveModule(7, 8, 1, true, false, .8519),  // Back Left
+            new SwerveModule(5, 6, 2, false, false, .8869), // Back Right
             
         };
          
@@ -107,8 +107,8 @@ public class SwerveDrive extends SubsystemBase {
     // Send module data to Shuffleboard
         swerveModules[0].updateTelemetry("FL");
         swerveModules[1].updateTelemetry("FR");
-        swerveModules[2].updateTelemetry("BR");
-        swerveModules[3].updateTelemetry("BL");
+        swerveModules[2].updateTelemetry("BL");
+        swerveModules[3].updateTelemetry("BR");
     
     // Also log the Gyro
         SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees());

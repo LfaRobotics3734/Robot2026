@@ -26,16 +26,15 @@ public class SwerveModule {
     private final DutyCycleOut steerControl = new DutyCycleOut(0);
     private final double angleOffset;
 
-    public SwerveModule(int driveMotorID, int steerMotorID, int encoderID, boolean driveInverted, double offset) {
+    public SwerveModule(int driveMotorID, int steerMotorID, int encoderID, boolean driveInverted, boolean steerInverted, double offset) {
         driveMotor = new TalonFX(driveMotorID);
         steerMotor = new TalonFX(steerMotorID);
         absoluteEncoder = new AnalogEncoder(new AnalogInput(encoderID));
 
         this.angleOffset = offset;
 
-        // absoluteEncoder.setInverted(inverted);
-
-        // Configure Kraken X60s (Talon FX)
+        absoluteEncoder.setInverted(false);
+        // Configure Kraken X60s (Talon FX) (Drive)
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -43,14 +42,20 @@ public class SwerveModule {
         else driveConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         
         driveMotor.getConfigurator().apply(driveConfig);
-
+        
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
+
+        if (steerInverted) steerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        else steerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        
         steerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
 
         steerMotor.getConfigurator().apply(steerConfig);
 
         // Steer PID: Telling it that 0 and 1 (rotations) are the same point
-        steerPID = new PIDController(0.5, 0, 0); // Tune these values!
+        // steerPID = new PIDController(0.05, 0, 0.005); // Tune these values!
+        steerPID = new PIDController(0.5, 0, 0);
         steerPID.enableContinuousInput(0, 1); 
 
         
