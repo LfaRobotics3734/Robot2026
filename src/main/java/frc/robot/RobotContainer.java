@@ -26,7 +26,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final SwerveDrive m_swerveDrive = new SwerveDrive();
-  private final String controllerType = "JOYSTICK"; // XBOX or JOYSTICK
+  // private final String controllerType = "JOYSTICK"; // XBOX or JOYSTICK
   private CommandJoystick m_driverController;
   private CommandXboxController m_xboxController;
 
@@ -48,19 +48,34 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    if(controllerType.equals("XBOX")) {
-      m_xboxController = new CommandXboxController(0);
-      m_swerveDrive.setDefaultCommand(
-          new TeleopDrive(
-              m_swerveDrive,
-              () -> -m_xboxController.getLeftY(),  // forward/back
-              () -> -m_xboxController.getLeftX(),  // strafe
-              () -> m_xboxController.getRightX() // rotate
-          ));
-      m_xboxController.start().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
+    // if(controllerType.equals("XBOX")) {
+    //   m_xboxController = new CommandXboxController(0);
+    //   m_swerveDrive.setDefaultCommand(
+    //       new TeleopDrive(
+    //           m_swerveDrive,
+    //           () -> -m_xboxController.getLeftY(),  // forward/back
+    //           () -> -m_xboxController.getLeftX(),  // strafe
+    //           () -> m_xboxController.getRightX() // rotate
+    //       ));
+    //   m_xboxController.start().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
 
-    } else {
-      m_driverController = new CommandJoystick(1);
+    // } else {
+    //   m_driverController = new CommandJoystick(1);
+    //   m_swerveDrive.setDefaultCommand(
+    //   new TeleopDrive(
+    //         m_swerveDrive,
+    //         // Axis 1 is usually Y (Forward/Back)
+    //         () -> -m_driverController.getRawAxis(1), 
+    //         // Axis 0 is usually X (Left/Right)
+    //         () -> -m_driverController.getRawAxis(0), 
+    //         // Axis 2 is often the Twist/Z-axis on flight sticks, 
+    //         // or Axis 4 on some gamepads. Adjust as needed!
+    //         () -> m_driverController.getRawAxis(2) 
+    //     ));
+    //     m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
+    // }
+
+    m_driverController = new CommandJoystick(1);
       m_swerveDrive.setDefaultCommand(
       new TeleopDrive(
             m_swerveDrive,
@@ -72,8 +87,7 @@ public class RobotContainer {
             // or Axis 4 on some gamepads. Adjust as needed!
             () -> m_driverController.getRawAxis(2) 
         ));
-        m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
-    }
+      m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
 
 
     

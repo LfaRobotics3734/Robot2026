@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivechain;
 
+import static edu.wpi.first.units.Units.Amp;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -54,7 +56,7 @@ public class SwerveModule {
         steerMotor.getConfigurator().apply(steerConfig);
 
         // Steer PID: Telling it that 0 and 1 (rotations) are the same point
-        steerPID = new PIDController(0.4, 0, 0);
+        steerPID = new PIDController(0.5, 0, 0);
         steerPID.enableContinuousInput(0, 1); 
 
         
@@ -125,7 +127,7 @@ public class SwerveModule {
     public Rotation2d getAngle() {
     // Subtract the offset from the raw reading
         double correctedRotations = absoluteEncoder.get() - angleOffset;
-        correctedRotations = ((correctedRotations % 1.0) + 1.0) % 1.0;
+        // correctedRotations = ((correctedRotations % 1.0) + 1.0) % 1.0;
         return Rotation2d.fromRotations(correctedRotations);
     }
 }

@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class SwerveDrive extends SubsystemBase {
 
@@ -18,6 +19,7 @@ public class SwerveDrive extends SubsystemBase {
     private final SwerveDriveOdometry odometry;
     private final Gyroscope gyro; 
     private final SwerveModule[] swerveModules;
+    private boolean[] SwerveOn;
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!
     public static final double kMaxSpeed = 2; 
@@ -25,13 +27,20 @@ public class SwerveDrive extends SubsystemBase {
     public SwerveDrive() {
         gyro = new Gyroscope();
 
+        SwerveOn = new boolean[] {
+            true,
+            true,
+            true,
+            true
+        };
+
         // 1. Initialize real SwerveModules (Drive ID, Steer ID, Analog Encoder ID)
         // CHECK YOUR CAN IDs AND ANALOG PORTS!
         swerveModules = new SwerveModule[] {
-            new SwerveModule(1, 2, 0, true, false, .4875), // Front Left
-            new SwerveModule(3, 4, 3, false, false, .862), // Front Right
-            new SwerveModule(7, 8, 1, true, false, .8465),  // Back Left
-            new SwerveModule(5, 6, 2, false, false, .888), // Back Right
+            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_LEFT_DRIVE, Constants.WheelConstants.MotorID.FRONT_LEFT_STEER, 0, true, false, .4915), // Front Left
+            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_RIGHT_DRIVE, Constants.WheelConstants.MotorID.FRONT_RIGHT_STEER, 3, false, false, .8685), // Front Right
+            new SwerveModule(Constants.WheelConstants.MotorID.BACK_LEFT_DRIVE, Constants.WheelConstants.MotorID.BACK_LEFT_STEER, 1, true, false, .8515),  // Back Left
+            new SwerveModule(Constants.WheelConstants.MotorID.BACK_RIGHT_DRIVE, Constants.WheelConstants.MotorID.BACK_RIGHT_STEER, 2, false, false, .8895), // Back Right
             
         };
          
@@ -80,8 +89,9 @@ public class SwerveDrive extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
 
         for (int i = 0; i < 4; i++) {
-            swerveModules[i].setState(swerveModuleStates[i]);
+            if (SwerveOn[i]) swerveModules[i].setState(swerveModuleStates[i]);
         }
+        // swerveModules[0].setState(swerveModuleStates[0]);
     }
 
     /** Helper to get all module positions for odometry */
