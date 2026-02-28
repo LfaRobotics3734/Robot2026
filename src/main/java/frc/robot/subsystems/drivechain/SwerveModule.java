@@ -56,7 +56,7 @@ public class SwerveModule {
         steerMotor.getConfigurator().apply(steerConfig);
 
         // Steer PID: Telling it that 0 and 1 (rotations) are the same point
-        steerPID = new PIDController(0.5, 0, 0);
+        steerPID = new PIDController(1, 0, 0);
         steerPID.enableContinuousInput(0, 1); 
 
         
@@ -128,6 +128,7 @@ public class SwerveModule {
     // Subtract the offset from the raw reading
         double correctedRotations = absoluteEncoder.get() - angleOffset;
         // correctedRotations = ((correctedRotations % 1.0) + 1.0) % 1.0;
+        if (correctedRotations < 0) correctedRotations += 1;
         return Rotation2d.fromRotations(correctedRotations);
     }
 }

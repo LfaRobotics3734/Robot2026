@@ -88,7 +88,8 @@ public class RobotContainer {
             () -> m_driverController.getRawAxis(2) 
         ));
       m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
-
+      m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.05)))
+      .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
 
     
 

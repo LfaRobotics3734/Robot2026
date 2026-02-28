@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -91,6 +92,7 @@ public class SwerveDrive extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             if (SwerveOn[i]) swerveModules[i].setState(swerveModuleStates[i]);
         }
+        
         // swerveModules[0].setState(swerveModuleStates[0]);
     }
 
@@ -112,6 +114,7 @@ public class SwerveDrive extends SubsystemBase {
     @Override
     public void periodic() {
         // Update the odometry with current gyro and wheel positions
+        
         odometry.update(gyro.getAngle(), getModulePositions());
 
     // Send module data to Shuffleboard
