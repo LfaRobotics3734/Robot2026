@@ -36,7 +36,7 @@ public class SwerveDrive extends SubsystemBase {
         };
 
         // 1. Initialize real SwerveModules (Drive ID, Steer ID, Analog Encoder ID)
-        // CHECK YOUR CAN IDs AND ANALOG PORTS!
+
         swerveModules = new SwerveModule[] {
             new SwerveModule(Constants.WheelConstants.MotorID.FRONT_LEFT_DRIVE, Constants.WheelConstants.MotorID.FRONT_LEFT_STEER, 0, true, false, .4915), // Front Left
             new SwerveModule(Constants.WheelConstants.MotorID.FRONT_RIGHT_DRIVE, Constants.WheelConstants.MotorID.FRONT_RIGHT_STEER, 3, false, false, .8685), // Front Right
@@ -112,7 +112,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void periodic() { // Ticks every 20ms
         // Update the odometry with current gyro and wheel positions
         
         odometry.update(gyro.getAngle(), getModulePositions());
@@ -123,7 +123,6 @@ public class SwerveDrive extends SubsystemBase {
         swerveModules[2].updateTelemetry("BL");
         swerveModules[3].updateTelemetry("BR");
     
-    // Also log the Gyro
-        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees());
+        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees()); // Range of 0 - 360 (placed in shuffleboard)
     }
 }

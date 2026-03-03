@@ -17,6 +17,13 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static final class IntakeConstants {
+    public static final class MotorID{
+      public static final int POSITION_MOTOR = 0;
+      public static final int SPIN_MOTOR = 0;
+    }
+  }
+
   public static final class WheelConstants {
     public static final class MotorID {
       public static final int FRONT_LEFT_STEER = 2;

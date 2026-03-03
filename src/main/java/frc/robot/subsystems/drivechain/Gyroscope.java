@@ -21,7 +21,6 @@ public class Gyroscope {
 
     /**
      * Returns the heading of the robot as a Rotation2d.
-     * This handles the conversion from navX degrees to WPILib geometry.
      */
     public Rotation2d getAngle() {
         // We use getRotation2d() to ensure counter-clockwise is positive
@@ -45,6 +44,5 @@ public class Gyroscope {
     public double getRotationRate() {
         return navX.getRate();
 
-        // return 0.0;
     }
 }
