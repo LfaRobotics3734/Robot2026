@@ -51,8 +51,15 @@ public class RobotContainer {
     // xBox Operator Below ->
       m_xboxController = new CommandXboxController(0);
       
-      m_xboxController.povDown().onTrue(new InstantCommand());
+      m_xboxController.povDown()
+      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.05)))
+      .finallyDo(() -> intake.stopPosition());
 
+      m_xboxController.povUp()
+      .whileTrue(Commands.run(() -> intake.adjustPosition(0.05)))
+      .finallyDo(() -> intake.adjustPosition(0.05));
+
+      m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
 
 
     // SwerveDrive JoyStick Below -> 

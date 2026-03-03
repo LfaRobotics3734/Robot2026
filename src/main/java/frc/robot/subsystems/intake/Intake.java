@@ -1,8 +1,7 @@
 package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import edu.wpi.first.math.MathUtil;
 
 
 public class Intake {
@@ -10,6 +9,7 @@ public class Intake {
     private TalonFX positionMotor;
     private final DutyCycleOut spinCycleOut = new DutyCycleOut(0); 
     private final DutyCycleOut positionCycleOut = new DutyCycleOut(0);
+    private boolean isSpinning = false;
         
     // Two motors total -> positionMotor for up/down, and spinMotor for powering the axles. 
     public Intake(int spinMotorID, int positionMotorID) {
@@ -18,17 +18,29 @@ public class Intake {
    }
 
    // Used to lift or lower the intake 
-   public void adjustPosition(int ySpeed, boolean down) {
-    if(down) {
-        TalonFXConfiguration positionMotorConfig = new TalonFXConfiguration();
-        positionMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        positionMotor.getConfigurator().apply(positionMotorConfig);
-    }
-    positionMotor.setControl(positionCycleOut.withOutput(ySpeed));
+   public void adjustPosition(int speed) {
+    speed = MathUtil.clamp(speed, -1, 1);
+
+    positionMotor.setControl(positionCycleOut.withOutput(speed));
+   }
+
+   public void stopPosition() {
+    positionMotor.setControl(positionCycleOut.withOutput(0));
    }
    
+    public void configureSpin() {
+        if(isSpinning) {
+            isSpinning = false;
+            disableSpin();
+        } else {
+            isSpinning = true;
+            enableSpin();
+        }
+
+    }
+
    public void enableSpin() {
-    // spinMotor.setControl(spinCycleOut.withOutput(0)); (TODO)
+    spinMotor.setControl(spinCycleOut.withOutput(0.15));
    }
 
    public void disableSpin() {
