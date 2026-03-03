@@ -12,6 +12,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -52,12 +53,12 @@ public class RobotContainer {
       m_xboxController = new CommandXboxController(0);
       
       m_xboxController.povDown()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.05)))
-      .finallyDo(() -> intake.stopPosition());
+      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.05))
+      .finallyDo(() -> intake.stopPosition()));
 
       m_xboxController.povUp()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(0.05)))
-      .finallyDo(() -> intake.adjustPosition(0.05));
+      .whileTrue(Commands.run(() -> intake.adjustPosition(0.05))
+      .finallyDo(() -> intake.adjustPosition(0.05)));
 
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
 

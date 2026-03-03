@@ -18,8 +18,8 @@ public class Intake {
    }
 
    // Used to lift or lower the intake 
-   public void adjustPosition(int speed) {
-    speed = MathUtil.clamp(speed, -1, 1);
+   public void adjustPosition(double speed) {
+    speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it exceed the range of -1 to 1
 
     positionMotor.setControl(positionCycleOut.withOutput(speed));
    }
@@ -27,7 +27,7 @@ public class Intake {
    public void stopPosition() {
     positionMotor.setControl(positionCycleOut.withOutput(0));
    }
-   
+    // Acts as a switch (spin is either on or off) 
     public void configureSpin() {
         if(isSpinning) {
             isSpinning = false;
