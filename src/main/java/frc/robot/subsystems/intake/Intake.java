@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import edu.wpi.first.math.MathUtil;
 
@@ -15,6 +17,10 @@ public class Intake {
     public Intake(int spinMotorID, int positionMotorID) {
         spinMotor = new TalonFX(spinMotorID);
         positionMotor = new TalonFX(positionMotorID);
+
+        TalonFXConfiguration positionConfig = new TalonFXConfiguration();
+        positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        positionMotor.getConfigurator().apply(positionConfig);
    }
 
    // Used to lift or lower the intake 
@@ -40,7 +46,7 @@ public class Intake {
     }
 
    public void enableSpin() {
-    spinMotor.setControl(spinCycleOut.withOutput(0.15));
+    spinMotor.setControl(spinCycleOut.withOutput(0.03));
    }
 
    public void disableSpin() {

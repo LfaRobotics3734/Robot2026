@@ -20,10 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.math.MathUtil;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
+ * subsystems, commands, and trigger mappings ->
  */
 public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -32,7 +29,6 @@ public class RobotContainer {
   private CommandXboxController m_xboxController;
   private Intake intake;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     
     // Main init for subsystems
@@ -51,15 +47,16 @@ public class RobotContainer {
 
     // xBox Operator Below ->
       m_xboxController = new CommandXboxController(0);
-      
+      // When the D-Pad is pressed down:
       m_xboxController.povDown()
       .whileTrue(Commands.run(() -> intake.adjustPosition(-0.05))
       .finallyDo(() -> intake.stopPosition()));
-
+      // When the D-Pad is pressed up:
       m_xboxController.povUp()
       .whileTrue(Commands.run(() -> intake.adjustPosition(0.05))
-      .finallyDo(() -> intake.adjustPosition(0.05)));
-
+      .finallyDo(() -> intake.stopPosition()));
+      
+      // Will either turn the spin motor on or off (runs each time A button is pressed)
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
 
 
