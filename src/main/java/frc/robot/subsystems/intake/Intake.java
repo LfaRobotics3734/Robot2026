@@ -9,7 +9,7 @@ import edu.wpi.first.math.MathUtil;
 public class Intake {
     private TalonFX spinMotor;
     private TalonFX positionMotor;
-    private final DutyCycleOut spinCycleOut = new DutyCycleOut(0); 
+    private final DutyCycleOut spinCycleOut = new DutyCycleOut(0); // Percent voltage out (0-1)
     private final DutyCycleOut positionCycleOut = new DutyCycleOut(0);
     private boolean isSpinning = false;
         
@@ -18,6 +18,7 @@ public class Intake {
         spinMotor = new TalonFX(spinMotorID);
         positionMotor = new TalonFX(positionMotorID);
 
+        // Makes sure the motors lock
         TalonFXConfiguration positionConfig = new TalonFXConfiguration();
         positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         positionMotor.getConfigurator().apply(positionConfig);

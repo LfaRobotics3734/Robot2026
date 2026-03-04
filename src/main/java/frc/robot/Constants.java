@@ -24,6 +24,24 @@ public final class Constants {
     }
   }
 
+  public static final class ShooterConstants {
+    public static final class MotorID {
+      public static final int ANGLE_MOTOR_ONE = 5;
+      public static final int ANGLE_MOTOR_TWO = 11;
+      public static final int PRIMARY_SHOOTER = 7;
+      public static final int SECONDARY_SHOOTER = 6;
+      public static final int SHOOTER_INTAKE = 8;     
+
+    }
+  }
+
+    public static final class ClimbConstants {
+    public static final class MotorID {
+      public static final int CLIMB_MOTOR = 9;
+    }
+  }
+
+
   public static final class WheelConstants {
     public static final class MotorID {
       public static final int FRONT_LEFT_STEER = 2;
