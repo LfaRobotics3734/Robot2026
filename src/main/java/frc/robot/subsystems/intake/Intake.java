@@ -47,7 +47,7 @@ public class Intake {
     }
 
    public void enableSpin() {
-    spinMotor.setControl(spinCycleOut.withOutput(0.03));
+    spinMotor.setControl(spinCycleOut.withOutput(-0.5));
    }
 
    public void disableSpin() {

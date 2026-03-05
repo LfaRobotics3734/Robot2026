@@ -5,39 +5,82 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.MathUtil;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 public class Shooter {
-    private TalonFX[] shooterMotors; 
-    private TalonFX[] angleMotors;
-    private final DutyCycleOut spinCycleOut = new DutyCycleOut(0); 
+    private TalonFX primaryMotor; 
+    private TalonFX secondaryMotor;
+    private TalonFX angleMotor1;
+    private TalonFX angleMotor2;
+    private TalonFX idlerMotor;
+    private final DutyCycleOut shooterCycleOut = new DutyCycleOut(0);
+    private final DutyCycleOut angleCycleOut = new DutyCycleOut(0); 
+    private boolean isSpinning = false;
     
-    // Unnecessary comments left here for Hari
-    public Shooter() {
-        // Create Break Mode Config so motors lock after dutyCycleOut
-        TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
-        motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-        shooterMotors = new TalonFX[] {
-            new TalonFX(ShooterConstants.MotorID.PRIMARY_SHOOTER), // INDEX 0 = PRIMARY AXLE MOTOR
-            new TalonFX(ShooterConstants.MotorID.SECONDARY_SHOOTER), // INDEX 1 = SECONDARY AXLE MOTOR
-        };
-
-        angleMotors = new TalonFX[] {
-            new TalonFX(ShooterConstants.MotorID.ANGLE_MOTOR_ONE), 
-            new TalonFX(ShooterConstants.MotorID.ANGLE_MOTOR_TWO)
-        };
-
-
+    //Motor variables 
+    public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID, int idlerMotorID) {
+        //H: shooter definition
         
+        primaryMotor = new TalonFX(primaryMotorID);
+        secondaryMotor = new TalonFX(secondaryMotorID);
+
+        angleMotor1 = new TalonFX(angleMotor1ID);
+        angleMotor2 = new TalonFX(angleMotor2ID);
+
+        idlerMotor = new TalonFX(idlerMotorID);
+        // Create Break Mode Config so motors lock after dutyCycleOut
+        TalonFXConfiguration angleConfig = new TalonFXConfiguration();
+        angleConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        //H: Angle motors lock
+        angleMotor1.getConfigurator().apply(angleConfig);
+        angleMotor2.getConfigurator().apply(angleConfig);
+    }
+
+//H: adjusting the position of the shooter
+    public void adjustAngle(double speed) {
+    speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it exceed the range of -1 to 1
+
+    angleMotor1.setControl(angleCycleOut.withOutput(speed));
+    angleMotor2.setControl(angleCycleOut.withOutput(-speed));
+   }
+
+   public void stopAngle() {
+    angleMotor1.setControl(angleCycleOut.withOutput(0));
+    angleMotor2.setControl(angleCycleOut.withOutput(0));
+   }
+
+
+    // Acts as a switch (spin is either on or off) 
+    public void configureShoot() {
+        if(isSpinning) {
+            isSpinning = false;
+            disableShoot();
+        } else {
+            isSpinning = true;
+            enableShoot();
+        }
+
     }
 
 
-
-    public void enableSpin() {
-        for (TalonFX shootMotor : shooterMotors) {
-            shootMotor.setControl(spinCycleOut.withOutput(0.15));
+//Enable and disable spin on the shooting motors
+//H: I disabled the for loops since there needs to be OPPOSITE spin on shooter motors
+    public void enableShoot() {
+        
+        primaryMotor.setControl(shooterCycleOut.withOutput(-0.5));
+        secondaryMotor.setControl(shooterCycleOut.withOutput(0.5));
+        idlerMotor.setControl(shooterCycleOut.withOutput(0.3));
+        
         }
+   
+
+    public void disableShoot() {
+    primaryMotor.setControl(shooterCycleOut.withOutput(0));
+    secondaryMotor.setControl(shooterCycleOut.withOutput(0));
+    idlerMotor.setControl(shooterCycleOut.withOutput(0));
    }
 
 

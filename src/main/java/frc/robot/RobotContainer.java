@@ -6,9 +6,11 @@ package frc.robot;
 
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,18 +30,24 @@ public class RobotContainer {
   private CommandJoystick m_driverController;
   private CommandXboxController m_xboxController;
   private Intake intake;
+  private Shooter shooter;
 
   public RobotContainer() {
     
     // Main init for subsystems
     setupIntake();
+    setupShooter();
     configureControllerBindings();
     
     
   }
-
+//Intake definition
   private void setupIntake() {
     intake = new Intake(IntakeConstants.MotorID.SPIN_MOTOR, IntakeConstants.MotorID.POSITION_MOTOR);
+  }
+//shooter definition
+  private void setupShooter() {
+    shooter = new Shooter(ShooterConstants.MotorID.PRIMARY_SHOOTER, ShooterConstants.MotorID.SECONDARY_SHOOTER, ShooterConstants.MotorID.ANGLE_MOTOR_ONE, ShooterConstants.MotorID.ANGLE_MOTOR_TWO, ShooterConstants.MotorID.SHOOTER_INTAKE);
   }
 
 
@@ -58,6 +66,8 @@ public class RobotContainer {
       
       // Will either turn the spin motor on or off (runs each time A button is pressed)
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
+      //96.7% sure that this will turn the primary and secondary shoot motors on(runs when b is pressed)
+      m_xboxController.b().onTrue(new InstantCommand(() -> shooter.configureShoot()));
 
 
     // SwerveDrive JoyStick Below -> 
