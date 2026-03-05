@@ -7,10 +7,12 @@ package frc.robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.FeederConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,12 +33,14 @@ public class RobotContainer {
   private CommandXboxController m_xboxController;
   private Intake intake;
   private Shooter shooter;
+  private Feeder feeder;
 
   public RobotContainer() {
     
     // Main init for subsystems
     setupIntake();
     setupShooter();
+    setupFeeder();
     configureControllerBindings();
     
     
@@ -48,6 +52,11 @@ public class RobotContainer {
 //shooter definition
   private void setupShooter() {
     shooter = new Shooter(ShooterConstants.MotorID.PRIMARY_SHOOTER, ShooterConstants.MotorID.SECONDARY_SHOOTER, ShooterConstants.MotorID.ANGLE_MOTOR_ONE, ShooterConstants.MotorID.ANGLE_MOTOR_TWO, ShooterConstants.MotorID.SHOOTER_INTAKE);
+  }
+
+  //feeder definition
+  private void setupFeeder() {
+    feeder = new Feeder(FeederConstants.MotorID.FEEDER_MOTOR);
   }
 
 
@@ -68,6 +77,8 @@ public class RobotContainer {
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
       //96.7% sure that this will turn the primary and secondary shoot motors on(runs when b is pressed)
       m_xboxController.b().onTrue(new InstantCommand(() -> shooter.configureShoot()));
+      //turns on indexer at the same time
+      m_xboxController.b().onTrue(new InstantCommand(() -> feeder.configureFeed()));
 
 
     // SwerveDrive JoyStick Below -> 

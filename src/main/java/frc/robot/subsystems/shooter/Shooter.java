@@ -41,7 +41,7 @@ public class Shooter {
 
 //H: adjusting the position of the shooter
     public void adjustAngle(double speed) {
-    speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it exceed the range of -1 to 1
+    speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
 
     angleMotor1.setControl(angleCycleOut.withOutput(speed));
     angleMotor2.setControl(angleCycleOut.withOutput(-speed));

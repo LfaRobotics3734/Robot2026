@@ -35,6 +35,12 @@ public final class Constants {
     }
   }
 
+  public static final class FeederConstants {
+    public static final class MotorID{
+      public static final int FEEDER_MOTOR = 4;
+    }
+  }
+
     public static final class ClimbConstants {
     public static final class MotorID {
       public static final int CLIMB_MOTOR = 9;
