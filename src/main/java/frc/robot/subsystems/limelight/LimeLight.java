@@ -2,16 +2,14 @@ package frc.robot.subsystems.limelight;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class LimeLight extends SubsystemBase {
+public class LimeLight {
     NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
     DriverStation.Alliance color;
 
@@ -30,14 +28,9 @@ public class LimeLight extends SubsystemBase {
 
 
     // ONLY CALLED ONCE AS A JOYSTICK COMMAND -> (Doesn't do anything)
-    public void getValue() {
-        double[]
-            System.out.println(limelight.getEntry(positionEntry).getDoubleArray(new double[6])[0] + ","
-                    + limelight.getEntry(positionEntry).getDoubleArray(new double[6])[1] + ","
-                    + limelight.getEntry(positionEntry).getDoubleArray(new double[6])[2] + ","
-                    + limelight.getEntry(positionEntry).getDoubleArray(new double[6])[3] + ","
-                    + limelight.getEntry(positionEntry).getDoubleArray(new double[6])[4] + ","
-                    + limelight.getEntry(positionEntry).getDoubleArray(new double[6])[5]);
+    public void getLimeLightData() {
+        double[] data = limelight.getEntry(positionEntry).getDoubleArray(new double[7]);
+        System.out.println("X pos: " + data[0] + "," + "Y pos: " + data[1] + "," + "Z pos: " + data[2] + "Roll: " + data[3] + "," + "Pitch: " + data[4] + "," + data[5] + "," + "Yaw: " + data[6] + "\nall: " + data);
     }
 
     // check whether or not limelight has an estimated pose
@@ -68,7 +61,7 @@ public class LimeLight extends SubsystemBase {
         double[] data = limelight.getEntry(positionEntry).getDoubleArray(new double[7]);
 
 
-        // Data Ref -> [x, y, x, roll, pitch, yaw, latency, tagcount, tagspan, avgdist, avgarea]
+        // Data Ref -> [x, y, z, roll, pitch, yaw, latency, tagcount, tagspan, avgdist, avgarea] 
 
         double x = data[0];
         double y = data[1];
@@ -106,7 +99,7 @@ public class LimeLight extends SubsystemBase {
         double targetOffsetAngle_Vertical = ty.getDouble(0.0);
 
         // how many degrees back is your limelight rotated from perfectly vertical?
-        double limelightMountAngleDegrees = 15.0; 
+        double limelightMountAngleDegrees = 15.0; // need to adjust (JERRY HI)
 
         // distance from the center of the Limelight lens to the floor
         double limelightLensHeightInches = 9.84; 
@@ -123,7 +116,7 @@ public class LimeLight extends SubsystemBase {
         return distanceFromLimelightToGoalInches;
     }
 
-    // Wrapper for estimated Pose2d and pose timestamp
+    
     public class TimestampPose2d {
         private double timestamp;
         private Pose2d pose;
