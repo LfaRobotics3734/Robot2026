@@ -21,6 +21,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.MathUtil;
 
 /**
@@ -101,7 +105,15 @@ public class RobotContainer {
 
 
   public Command getAutonomousCommand() {
+
+    String autoPath = "";
+    Command autoCommand = new PathPlannerAuto(autoPath);
+
+
+
+    
+
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return autoCommand;
   }
 }

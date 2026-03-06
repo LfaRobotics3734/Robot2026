@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivechain;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,6 +23,9 @@ public class SwerveDrive extends SubsystemBase {
     private final Gyroscope gyro; 
     private final SwerveModule[] swerveModules;
     private boolean[] SwerveOn;
+
+    private double xSpeed, ySpeed, rot;
+    private Rotation2d currentHeading;
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!
     public static final double kMaxSpeed = 2; 
@@ -60,6 +65,8 @@ public class SwerveDrive extends SubsystemBase {
             getModulePositions(),
             new Pose2d(0, 0, new Rotation2d())
         );
+
+        AutoBuilder.configure(null, null, null, null, null, null, null, null); //Finish configuring once limelight is done
     }
 
     /**
@@ -94,6 +101,13 @@ public class SwerveDrive extends SubsystemBase {
         }
         
         // swerveModules[0].setState(swerveModuleStates[0]);
+
+
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+        this.rot = rot;
+        this.currentHeading = currentHeading;
+
     }
 
     /** Helper to get all module positions for odometry */
@@ -125,4 +139,9 @@ public class SwerveDrive extends SubsystemBase {
     
         SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees()); // Range of 0 - 360 (placed in shuffleboard)
     }
+
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(xSpeed, ySpeed, rot, currentHeading);
+    }
+
 }
