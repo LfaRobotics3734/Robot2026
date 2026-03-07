@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.limelight.LimeLight;
 
 public class SwerveDrive extends SubsystemBase {
 
@@ -26,11 +27,15 @@ public class SwerveDrive extends SubsystemBase {
 
     private double xSpeed, ySpeed, rot;
     private Rotation2d currentHeading;
+
+    private LimeLight limeLight;
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!
     public static final double kMaxSpeed = 2; 
 
     public SwerveDrive() {
+        limeLight = new LimeLight();
+        
         gyro = new Gyroscope();
 
         SwerveOn = new boolean[] {
@@ -66,7 +71,7 @@ public class SwerveDrive extends SubsystemBase {
             new Pose2d(0, 0, new Rotation2d())
         );
 
-        AutoBuilder.configure(null, null, null, null, null, null, null, null); //Finish configuring once limelight is done
+    //    AutoBuilder.configure(getPose2d(), null, null, null, null, null, null, null); //Finish configuring once limelight is done
     }
 
     /**
@@ -142,6 +147,10 @@ public class SwerveDrive extends SubsystemBase {
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return ChassisSpeeds.fromRobotRelativeSpeeds(xSpeed, ySpeed, rot, currentHeading);
+    }
+
+    public Pose2d getPose2d() {
+        return limeLight.getPose2d();
     }
 
 }

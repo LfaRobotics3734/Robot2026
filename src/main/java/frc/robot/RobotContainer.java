@@ -70,12 +70,23 @@ public class RobotContainer {
       m_xboxController = new CommandXboxController(0);
       // When the D-Pad is pressed down:
       m_xboxController.povDown()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.05))
+      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.1))
       .finallyDo(() -> intake.stopPosition()));
       // When the D-Pad is pressed up:
       m_xboxController.povUp()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(0.05))
+      .whileTrue(Commands.run(() -> intake.adjustPosition(0.15))
       .finallyDo(() -> intake.stopPosition()));
+
+
+      //trigger shooter angle for dpad left
+      m_xboxController.povLeft()
+      .whileTrue(Commands.run(() -> shooter.adjustAngle(0.04))
+      .finallyDo(() -> shooter.stopAngle()));
+      m_xboxController.povRight()
+      .whileTrue(Commands.run(() -> shooter.adjustAngle(-0.04))
+      .finallyDo(() -> shooter.stopAngle()));
+
+
       
       // Will either turn the spin motor on or off (runs each time A button is pressed)
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
