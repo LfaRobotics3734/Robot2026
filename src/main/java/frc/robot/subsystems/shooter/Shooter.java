@@ -47,11 +47,15 @@ public class Shooter {
     angleMotor2.setControl(angleCycleOut.withOutput(-speed));
    }
 
-   public void stopAngle() {
-    double kG = 0.05; 
-    angleMotor1.setControl(angleCycleOut.withOutput(kG));
-    angleMotor2.setControl(angleCycleOut.withOutput(-kG));
-   }
+    public void stopAngle() {
+        // Replace '0.05' with the minimum power needed to keep your arm from falling
+        
+        //after encoder is added make it os only use motors if it is not in resting position otherwise motors will smoke if too long
+        
+        double kG = 0.020; 
+        angleMotor1.setControl(angleCycleOut.withOutput(kG));
+        angleMotor2.setControl(angleCycleOut.withOutput(-kG));
+    }
 
 
     // Acts as a switch (spin is either on or off) 
@@ -61,7 +65,7 @@ public class Shooter {
             disableShoot();
         } else {
             isSpinning = true;
-            enableShoot();
+            enableShoot(.5, .3);
         }
 
     }
@@ -69,20 +73,20 @@ public class Shooter {
 
 //Enable and disable spin on the shooting motors
 //H: I disabled the for loops since there needs to be OPPOSITE spin on shooter motors
-    public void enableShoot() {
+    public void enableShoot(double shooter, double idler) {
         
-        primaryMotor.setControl(shooterCycleOut.withOutput(-0.5));
-        secondaryMotor.setControl(shooterCycleOut.withOutput(0.5));
-        idlerMotor.setControl(shooterCycleOut.withOutput(0.3));
+        primaryMotor.setControl(shooterCycleOut.withOutput(-shooter));
+        secondaryMotor.setControl(shooterCycleOut.withOutput(shooter));
+        idlerMotor.setControl(shooterCycleOut.withOutput(idler));
         
-        }
+    }
    
 
     public void disableShoot() {
-    primaryMotor.setControl(shooterCycleOut.withOutput(0));
-    secondaryMotor.setControl(shooterCycleOut.withOutput(0));
-    idlerMotor.setControl(shooterCycleOut.withOutput(0));
-   }
+        primaryMotor.setControl(shooterCycleOut.withOutput(0));
+        secondaryMotor.setControl(shooterCycleOut.withOutput(0));
+        idlerMotor.setControl(shooterCycleOut.withOutput(0));
+    }
 
 
 }

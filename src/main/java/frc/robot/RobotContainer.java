@@ -85,7 +85,17 @@ public class RobotContainer {
       .whileTrue(Commands.run(() -> intake.adjustPosition(0.25))
       .finallyDo(() -> intake.stopPosition()));
 
-     // m_xboxController.
+
+
+      //trigger shooter angle for dpad left
+      m_xboxController.povLeft()
+      .whileTrue(Commands.run(() -> shooter.adjustAngle(0.04))
+      .finallyDo(() -> shooter.stopAngle()));
+      m_xboxController.povRight()
+      .whileTrue(Commands.run(() -> shooter.adjustAngle(-0.04))
+      .finallyDo(() -> shooter.stopAngle()));
+
+
       
       // Will either turn the spin motor on or off (runs each time A button is pressed)
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
