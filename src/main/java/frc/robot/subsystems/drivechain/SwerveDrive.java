@@ -1,7 +1,15 @@
 package frc.robot.subsystems.drivechain;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import java.io.IOException;
 
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,27 +19,40 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
+import frc.robot.subsystems.limelight.LimeLight;
 
 public class SwerveDrive extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
     private final Gyroscope gyro; 
+    private final LimeLight limeLight;
     private final SwerveModule[] swerveModules;
+    private final SwerveDrivePoseEstimator poseEstimator;
     private boolean[] SwerveOn;
 
     private double xSpeed, ySpeed, rot;
     private Rotation2d currentHeading;
+    private RobotConfig robotConfig;
+    
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!
     public static final double kMaxSpeed = 2; 
 
     public SwerveDrive() {
+
+
+
+
         gyro = new Gyroscope();
+        limeLight = new LimeLight();
+        
 
         SwerveOn = new boolean[] {
             true,
@@ -66,7 +87,43 @@ public class SwerveDrive extends SubsystemBase {
             new Pose2d(0, 0, new Rotation2d())
         );
 
-        AutoBuilder.configure(null, null, null, null, null, null, null, null); //Finish configuring once limelight is done
+        poseEstimator = new SwerveDrivePoseEstimator(kinematics, currentHeading, getModulePositions(), null);
+
+        
+        // try {
+        //     robotConfig = RobotConfig.fromGUISettings();
+        // } catch (IOException e) {
+        //     // TODO Auto-generated catch block
+        //     e.printStackTrace();
+        // } catch (ParseException e) {
+        //     // TODO Auto-generated catch block
+        //     e.printStackTrace();
+        // }
+
+        // AutoBuilder.configure(
+        //     limeLight::getPose2d, 
+        //     this::resetOrdometry, 
+        //     this::getRobotRelativeSpeeds, 
+        //     this::driveRelative, 
+        //     new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in
+        //         // your Constants class
+        //         new com.pathplanner.lib.config.PIDConstants(1, 0, 0), // Translation PID constants
+        //         new PIDConstants(1, 0, 0)
+        //     ), // Rotation PID constants
+        //     robotConfig, 
+        //     () -> {
+        //         // Boolean supplier that controls when the path will be mirrored for the red alliance
+        //         // This will flip the path being followed to the red side of the field.
+        //         // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+        //         var alliance = DriverStation.getAlliance();
+        //         if (alliance.isPresent()) {
+        //             return alliance.get() == DriverStation.Alliance.Red;
+        //         }
+        //         return false;
+        //         }, 
+        //     this
+        // ); //Finish configuring once limelight is done
     }
 
     /**
@@ -108,6 +165,19 @@ public class SwerveDrive extends SubsystemBase {
         this.rot = rot;
         this.currentHeading = currentHeading;
 
+        poseEstimator.update(currentHeading, getModulePositions());
+
+    }
+
+    public void driveRelative(ChassisSpeeds speeds) {
+        setModuleStates(kinematics.toSwerveModuleStates(speeds));
+    }
+
+    public void setModuleStates(SwerveModuleState[] states) {
+        for (int i = 0; i < 4; i++) {
+            if (SwerveOn[i]) swerveModules[i].setState(states[i]);
+        }
+        
     }
 
     /** Helper to get all module positions for odometry */
@@ -123,6 +193,11 @@ public class SwerveDrive extends SubsystemBase {
     /** Reset the gyro heading (Field Oriented "Zero") */
     public void zeroHeading() {
         gyro.zeroYaw();
+    }
+
+    public void resetOrdometry(Pose2d pose) {
+        poseEstimator.resetPose(pose);
+        
     }
 
     @Override

@@ -48,8 +48,9 @@ public class Shooter {
    }
 
    public void stopAngle() {
-    angleMotor1.setControl(angleCycleOut.withOutput(0));
-    angleMotor2.setControl(angleCycleOut.withOutput(0));
+    double kG = 0.05; 
+    angleMotor1.setControl(angleCycleOut.withOutput(kG));
+    angleMotor2.setControl(angleCycleOut.withOutput(-kG));
    }
 
 

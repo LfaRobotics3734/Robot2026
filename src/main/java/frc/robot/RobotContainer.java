@@ -12,6 +12,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.Shooter;
+import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig.ModuleConfig;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
@@ -23,21 +24,25 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 /**
  * subsystems, commands, and trigger mappings ->
  */
 public class RobotContainer {
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final SwerveDrive m_swerveDrive = new SwerveDrive();
   private CommandJoystick m_driverController;
   private CommandXboxController m_xboxController;
   private Intake intake;
   private Shooter shooter;
   private Feeder feeder;
+  // private final RobotConfig robotConfig;
 
   public RobotContainer() {
     
@@ -46,6 +51,9 @@ public class RobotContainer {
     setupShooter();
     setupFeeder();
     configureControllerBindings();
+
+	
+    
     
     
   }
@@ -70,12 +78,14 @@ public class RobotContainer {
       m_xboxController = new CommandXboxController(0);
       // When the D-Pad is pressed down:
       m_xboxController.povDown()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.05))
+      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.25))
       .finallyDo(() -> intake.stopPosition()));
       // When the D-Pad is pressed up:
       m_xboxController.povUp()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(0.05))
+      .whileTrue(Commands.run(() -> intake.adjustPosition(0.25))
       .finallyDo(() -> intake.stopPosition()));
+
+     // m_xboxController.
       
       // Will either turn the spin motor on or off (runs each time A button is pressed)
       m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
@@ -111,9 +121,7 @@ public class RobotContainer {
 
 
 
-    
 
-    // An example command will be run in autonomous
     return autoCommand;
   }
 }
