@@ -78,11 +78,11 @@ public class RobotContainer {
       m_xboxController = new CommandXboxController(0);
       // When the D-Pad is pressed down:
       m_xboxController.povDown()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.25))
+      .whileTrue(Commands.run(() -> intake.adjustPosition(-0.15))
       .finallyDo(() -> intake.stopPosition()));
       // When the D-Pad is pressed up:
       m_xboxController.povUp()
-      .whileTrue(Commands.run(() -> intake.adjustPosition(0.25))
+      .whileTrue(Commands.run(() -> intake.adjustPosition(0.15))
       .finallyDo(() -> intake.stopPosition()));
 
 
@@ -98,11 +98,12 @@ public class RobotContainer {
 
       
       // Will either turn the spin motor on or off (runs each time A button is pressed)
-      m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
+      // m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
       //96.7% sure that this will turn the primary and secondary shoot motors on(runs when b is pressed)
-      m_xboxController.b().onTrue(new InstantCommand(() -> shooter.configureShoot()));
+      // m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> feeder.configureFeed()));
+      m_xboxController.b().onTrue(new InstantCommand(() -> intake.configureSpin()));
       //turns on indexer at the same time
-      m_xboxController.b().onTrue(new InstantCommand(() -> feeder.configureFeed()));
+      // m_xboxController.x().onTrue(new InstantCommand(() -> feeder.configureFeed()));
 
 
     // SwerveDrive JoyStick Below -> 
@@ -111,15 +112,15 @@ public class RobotContainer {
       new TeleopDrive(
             m_swerveDrive,
             // Axis 0: X (Left & Right)
-            () -> -m_driverController.getRawAxis(0), 
+            () -> m_driverController.getRawAxis(0), 
             // Axis 1: Y (Forward & Backward)
             () -> -m_driverController.getRawAxis(1), 
             // Axis 2: Z Rotation 
-            () -> m_driverController.getRawAxis(2) 
+            () -> -m_driverController.getRawAxis(2) 
         ));
       m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));  // Sets the gryo heading to point 0 -> The direction its pointing becomes forward essentially 
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
-      m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.05)))  
+      m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.25)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
   }
 
@@ -133,5 +134,6 @@ public class RobotContainer {
 
 
     return autoCommand;
+    
   }
 }

@@ -50,17 +50,17 @@ public final class Constants {
 
   public static final class WheelConstants {
     public static final class MotorID {
-      public static final int FRONT_LEFT_STEER = 2;
-      public static final int FRONT_LEFT_DRIVE = 1;
+      public static final int FRONT_LEFT_STEER = 15; // 15
+      public static final int FRONT_LEFT_DRIVE = 14; // 14
 
-      public static final int FRONT_RIGHT_STEER = 13;
-      public static final int FRONT_RIGHT_DRIVE = 3;
+      public static final int FRONT_RIGHT_STEER = 17; // 17
+      public static final int FRONT_RIGHT_DRIVE = 16; // 16
 
-      public static final int BACK_RIGHT_STEER = 15;
-      public static final int BACK_RIGHT_DRIVE = 14;
+      public static final int BACK_RIGHT_STEER = 2; // 2
+      public static final int BACK_RIGHT_DRIVE = 1; // 1
 
-      public static final int BACK_LEFT_STEER = 17;
-      public static final int BACK_LEFT_DRIVE = 16;
+      public static final int BACK_LEFT_STEER = 13; // 13
+      public static final int BACK_LEFT_DRIVE = 3; // 3
     }
 
     public static final class EncoderID {

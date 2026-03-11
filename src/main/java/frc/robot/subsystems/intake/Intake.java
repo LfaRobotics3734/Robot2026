@@ -4,6 +4,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class Intake {
@@ -12,6 +14,7 @@ public class Intake {
     private final DutyCycleOut spinCycleOut = new DutyCycleOut(0); // Percent voltage out (0-1)
     private final DutyCycleOut positionCycleOut = new DutyCycleOut(0);
     private boolean isSpinning = false;
+    private double rotations = 0.0;
         
     // Two motors total -> positionMotor for up/down, and spinMotor for powering the axles. 
     public Intake(int spinMotorID, int positionMotorID) {
@@ -21,14 +24,37 @@ public class Intake {
         // Makes sure the motors lock
         TalonFXConfiguration positionConfig = new TalonFXConfiguration();
         positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        positionConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true; // This is the down limit
+        positionConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -14.0;
+
+        positionConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        positionConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.0;
+
         positionMotor.getConfigurator().apply(positionConfig);
+        positionMotor.setPosition(0);
+        
+        while(Math.abs(getMotorRotations()) > 0.005) {
+            positionMotor.setPosition(0);
+        }
+        SmartDashboard.putNumber("Position Motor", getMotorRotations());
+
+   }
+
+   public double getMotorRotations() {
+    return positionMotor.getPosition().getValueAsDouble();
    }
 
    // Used to lift or lower the intake 
    public void adjustPosition(double speed) {
+    
+    
     speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it exceed the range of -1 to 1
-
+    
     positionMotor.setControl(positionCycleOut.withOutput(speed));
+    
+
+    SmartDashboard.putNumber("Position Motor", getMotorRotations());
+
    }
 
    public void stopPosition() {

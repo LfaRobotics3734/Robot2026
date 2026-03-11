@@ -7,12 +7,16 @@ import edu.wpi.first.math.MathUtil;
 
 public class Feeder {
     private TalonFX feederMotor;
+    private TalonFX idlerMotor; 
     private final DutyCycleOut feederCycleOut = new DutyCycleOut(0); // Percent voltage out (0-1)
     private boolean isSpinning = false;
+    
+
         
     // One motor to control the indexer speed
     public Feeder(int feederMotorID) {
         feederMotor = new TalonFX(feederMotorID);
+        // idlerMotor = new TalonFX()
    }
 
    

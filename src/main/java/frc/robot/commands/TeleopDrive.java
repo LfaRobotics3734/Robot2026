@@ -40,6 +40,6 @@ public class TeleopDrive extends Command {
         double rot = MathUtil.applyDeadband(vRot.getAsDouble(), 0.3) * (Math.PI * 2);
 
         // 3. Send to Subsystem (true = Field Relative)
-        swerveDrive.drive(x * 0.1, y * 0.1, rot * rotMultiplier, true);
+        swerveDrive.drive(x * 0.5, y * 0.5, rot * rotMultiplier, true);
     }
 }

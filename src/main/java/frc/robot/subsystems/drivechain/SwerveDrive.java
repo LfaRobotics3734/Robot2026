@@ -2,12 +2,12 @@ package frc.robot.subsystems.drivechain;
 
 import java.io.IOException;
 
-import org.json.simple.parser.ParseException;
+// import org.json.simple.parser.ParseException;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+// import com.pathplanner.lib.auto.AutoBuilder;
+// import com.pathplanner.lib.config.PIDConstants;
+// import com.pathplanner.lib.config.RobotConfig;
+// import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,7 +35,7 @@ public class SwerveDrive extends SubsystemBase {
     private final Gyroscope gyro; 
     private final LimeLight limeLight;
     private final SwerveModule[] swerveModules;
-    private final SwerveDrivePoseEstimator poseEstimator;
+    // private final SwerveDrivePoseEstimator poseEstimator;
     private boolean[] SwerveOn;
 
     private double xSpeed, ySpeed, rot;
@@ -47,7 +47,7 @@ public class SwerveDrive extends SubsystemBase {
     public SwerveDrive() {
         gyro = new Gyroscope();
         limeLight = new LimeLight();
-        
+        currentHeading = gyro.getAngle();
 
         SwerveOn = new boolean[] {
             true,
@@ -59,10 +59,10 @@ public class SwerveDrive extends SubsystemBase {
         // 1. Initialize real SwerveModules (Drive ID, Steer ID, Analog Encoder ID)
 
         swerveModules = new SwerveModule[] {
-            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_LEFT_DRIVE, Constants.WheelConstants.MotorID.FRONT_LEFT_STEER, 0, true, false, .4915), // Front Left
-            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_RIGHT_DRIVE, Constants.WheelConstants.MotorID.FRONT_RIGHT_STEER, 3, false, false, .8685), // Front Right
-            new SwerveModule(Constants.WheelConstants.MotorID.BACK_LEFT_DRIVE, Constants.WheelConstants.MotorID.BACK_LEFT_STEER, 1, true, false, .8515),  // Back Left
-            new SwerveModule(Constants.WheelConstants.MotorID.BACK_RIGHT_DRIVE, Constants.WheelConstants.MotorID.BACK_RIGHT_STEER, 2, false, false, .8895), // Back Right
+            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_LEFT_DRIVE, Constants.WheelConstants.MotorID.FRONT_LEFT_STEER, 2, false, false, .8895), // Front Left
+            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_RIGHT_DRIVE, Constants.WheelConstants.MotorID.FRONT_RIGHT_STEER, 1, true, false, .8515), // Front Right
+            new SwerveModule(Constants.WheelConstants.MotorID.BACK_LEFT_DRIVE, Constants.WheelConstants.MotorID.BACK_LEFT_STEER, 3, false, false, .8685),  // Back Left
+            new SwerveModule(Constants.WheelConstants.MotorID.BACK_RIGHT_DRIVE, Constants.WheelConstants.MotorID.BACK_RIGHT_STEER, 0, true, false, .4915), // Back Right
             
         };
          
@@ -82,7 +82,7 @@ public class SwerveDrive extends SubsystemBase {
             new Pose2d(0, 0, new Rotation2d())
         );
 
-                poseEstimator = new SwerveDrivePoseEstimator(kinematics, currentHeading, getModulePositions(), null);
+        // poseEstimator = new SwerveDrivePoseEstimator(kinematics, currentHeading, getModulePositions(), null);
 
         
         // try {
@@ -161,7 +161,7 @@ public class SwerveDrive extends SubsystemBase {
         this.rot = rot;
         this.currentHeading = currentHeading;
 
-        poseEstimator.update(currentHeading, getModulePositions());
+        // poseEstimator.update(currentHeading, getModulePositions());
 
     }
 
@@ -191,10 +191,10 @@ public class SwerveDrive extends SubsystemBase {
         gyro.zeroYaw();
     }
 
-    public void resetOrdometry(Pose2d pose) {
-        poseEstimator.resetPose(pose);
+    // public void resetOrdometry(Pose2d pose) {
+    //     poseEstimator.resetPose(pose);
         
-    }
+    // }
 
     @Override
     public void periodic() { // Ticks every 20ms

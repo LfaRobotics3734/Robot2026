@@ -11,20 +11,29 @@ public class Gyroscope {
     private final AHRS navX;
     
 
-    public Gyroscope() {
-        // Initialize the navX on the MXP port
-        navX = new AHRS(NavXComType.kMXP_SPI);
-        
-        // Reset the gyro so the current orientation is "0"
+public Gyroscope() {
+    // Stick with the Studica-specific enum since the constructor requires it
+    navX = new AHRS(NavXComType.kMXP_SPI);
+    
+    edu.wpi.first.wpilibj.Timer.delay(0.1); 
+
+    if (navX != null) {
         zeroYaw();
+    } else {
+        System.out.println("ERROR: NavX could not be initialized!");
+    }
     }
 
     /**
      * Returns the heading of the robot as a Rotation2d.
      */
     public Rotation2d getAngle() {
-        // We use getRotation2d() to ensure counter-clockwise is positive
-        return navX.getRotation2d();
+        Rotation2d angle = navX.getRotation2d();        
+        if (angle == null) {
+         return new Rotation2d(0); 
+         }
+        
+        return angle;
 
         // return new Rotation2d();
     }

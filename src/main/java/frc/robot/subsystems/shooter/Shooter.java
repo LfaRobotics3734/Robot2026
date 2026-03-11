@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -32,19 +33,54 @@ public class Shooter {
 
         idlerMotor = new TalonFX(idlerMotorID);
         // Create Break Mode Config so motors lock after dutyCycleOut
-        TalonFXConfiguration angleConfig = new TalonFXConfiguration();
-        angleConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        TalonFXConfiguration angleConfig1 = new TalonFXConfiguration();
+        angleConfig1.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        angleConfig1.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        angleConfig1.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.95;
+        angleConfig1.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        angleConfig1.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+
+        TalonFXConfiguration angleConfig2 = new TalonFXConfiguration();
+        angleConfig2.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        angleConfig2.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        angleConfig2.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.0;
+        angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -2.0;
+
         //H: Angle motors lock
-        angleMotor1.getConfigurator().apply(angleConfig);
-        angleMotor2.getConfigurator().apply(angleConfig);
+        angleMotor1.getConfigurator().apply(angleConfig1);
+        angleMotor2.getConfigurator().apply(angleConfig2);
+
+
+        angleMotor1.setPosition(0);
+        angleMotor2.setPosition(0);
+        while(Math.abs(getAngle(angleMotor1)) > 0.005) {
+            angleMotor1.setPosition(0);
+        }
+
+        while(Math.abs(getAngle(angleMotor2)) > 0.005) {
+            angleMotor2.setPosition(0);
+        }
+
+        SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
+        SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", getAngle(angleMotor2));
+    }
+
+    public double getAngle(TalonFX motor) {
+        return motor.getPosition().getValueAsDouble();
     }
 
 //H: adjusting the position of the shooter
     public void adjustAngle(double speed) {
     speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
-
-    angleMotor1.setControl(angleCycleOut.withOutput(speed));
-    angleMotor2.setControl(angleCycleOut.withOutput(-speed));
+    if(!(getAngle(angleMotor1) > 0.95)) { // IF we havent hit max rotations
+        angleMotor1.setControl(angleCycleOut.withOutput(speed));
+    }
+    if(!(Math.abs(getAngle(angleMotor2)) > 2)) {
+        angleMotor2.setControl(angleCycleOut.withOutput(-speed * 2));
+    }
+    SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
+    SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", getAngle(angleMotor2));
    }
 
     public void stopAngle() {
