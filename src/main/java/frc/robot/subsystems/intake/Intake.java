@@ -25,7 +25,7 @@ public class Intake {
         TalonFXConfiguration positionConfig = new TalonFXConfiguration();
         positionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         positionConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true; // This is the down limit
-        positionConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -14.0;
+        positionConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -15.5;
 
         positionConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         positionConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.0;
@@ -49,8 +49,11 @@ public class Intake {
     
     
     speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it exceed the range of -1 to 1
-    
-    positionMotor.setControl(positionCycleOut.withOutput(speed));
+    if(getMotorRotations() > -15.5 && speed < 0) { // For going down
+        positionMotor.setControl(positionCycleOut.withOutput(speed));
+    } else if (getMotorRotations() < 0 && speed > 0) { // for going up
+        positionMotor.setControl(positionCycleOut.withOutput(speed));
+    }
     
 
     SmartDashboard.putNumber("Position Motor", getMotorRotations());

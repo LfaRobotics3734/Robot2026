@@ -73,10 +73,10 @@ public class Shooter {
 //H: adjusting the position of the shooter
     public void adjustAngle(double speed) {
     speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
-    if(!(getAngle(angleMotor1) > 0.95)) { // IF we havent hit max rotations
+    if(getAngle(angleMotor1) < 0.95 && getAngle(angleMotor1) > -0.007) { // IF we havent hit max rotations
         angleMotor1.setControl(angleCycleOut.withOutput(speed));
     }
-    if(!(Math.abs(getAngle(angleMotor2)) > 2)) {
+    if(getAngle(angleMotor2) > -2 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
         angleMotor2.setControl(angleCycleOut.withOutput(-speed * 2));
     }
     SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
