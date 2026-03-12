@@ -4,12 +4,12 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 
-public class Limit extends Command {
+public class Limit extends CommandBase {
     private TalonFX motor;
     private DutyCycleOut cycleOut = new DutyCycleOut(0);
     private StatusSignal<Current> currentSignal;
@@ -42,7 +42,7 @@ public class Limit extends Command {
     }
 
     public void end(boolean interuppted) {
-
+        motor.setControl(cycleOut.withOutput(0));
     }
 
 

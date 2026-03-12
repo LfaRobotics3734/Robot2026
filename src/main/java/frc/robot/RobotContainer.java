@@ -61,6 +61,8 @@ public class RobotContainer {
     setupFeeder();
     configureControllerBindings();
 
+    setupClimb();
+
    
     
   }
