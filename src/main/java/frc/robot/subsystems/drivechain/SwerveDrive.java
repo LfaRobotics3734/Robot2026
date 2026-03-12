@@ -59,10 +59,10 @@ public class SwerveDrive extends SubsystemBase {
         // 1. Initialize real SwerveModules (Drive ID, Steer ID, Analog Encoder ID)
 
         swerveModules = new SwerveModule[] {
-            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_LEFT_DRIVE, Constants.WheelConstants.MotorID.FRONT_LEFT_STEER, 2, false, false, .8895), // Front Left
-            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_RIGHT_DRIVE, Constants.WheelConstants.MotorID.FRONT_RIGHT_STEER, 1, true, false, .8515), // Front Right
-            new SwerveModule(Constants.WheelConstants.MotorID.BACK_LEFT_DRIVE, Constants.WheelConstants.MotorID.BACK_LEFT_STEER, 3, false, false, .8685),  // Back Left
-            new SwerveModule(Constants.WheelConstants.MotorID.BACK_RIGHT_DRIVE, Constants.WheelConstants.MotorID.BACK_RIGHT_STEER, 0, true, false, .4915), // Back Right
+            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_LEFT_DRIVE, Constants.WheelConstants.MotorID.FRONT_LEFT_STEER, 2, false, false, .8911), // Front Left .8895
+            new SwerveModule(Constants.WheelConstants.MotorID.FRONT_RIGHT_DRIVE, Constants.WheelConstants.MotorID.FRONT_RIGHT_STEER, 1, true, false, .8465), // Front Right .8515
+            new SwerveModule(Constants.WheelConstants.MotorID.BACK_LEFT_DRIVE, Constants.WheelConstants.MotorID.BACK_LEFT_STEER, 3, false, false, .8675),  // Back Left .8685
+            new SwerveModule(Constants.WheelConstants.MotorID.BACK_RIGHT_DRIVE, Constants.WheelConstants.MotorID.BACK_RIGHT_STEER, 0, true, false, .4835), // Back Right .4915
             
         };
          
@@ -130,7 +130,6 @@ public class SwerveDrive extends SubsystemBase {
      * @param fieldRelative Whether inputs are relative to the field or robot
      */
     public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-        // 1. Get the rotation. Use getRotation2d() if your gyro class has it!
         Rotation2d currentHeading = gyro.getAngle(); 
 
         // 2. Create ChassisSpeeds

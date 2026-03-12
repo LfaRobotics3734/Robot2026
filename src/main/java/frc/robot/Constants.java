@@ -30,7 +30,6 @@ public final class Constants {
       public static final int ANGLE_MOTOR_TWO = 11;
       public static final int PRIMARY_SHOOTER = 7;
       public static final int SECONDARY_SHOOTER = 6;
-      public static final int SHOOTER_INTAKE = 8;     
 
     }
   }
@@ -38,6 +37,7 @@ public final class Constants {
   public static final class FeederConstants {
     public static final class MotorID{
       public static final int FEEDER_MOTOR = 4;
+      public static final int SHOOTER_INTAKE = 8;   
     }
   }
 

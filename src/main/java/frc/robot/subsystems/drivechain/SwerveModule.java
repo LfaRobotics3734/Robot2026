@@ -55,8 +55,8 @@ public class SwerveModule {
 
         steerMotor.getConfigurator().apply(steerConfig);
 
-        // Steer PID: Telling it that 0 and 1 (rotations) are the same point
-        steerPID = new PIDController(1, 0, 0);
+        // Steer PID: Telling it that 0 and 2.5 (rotations) are the same point
+        steerPID = new PIDController(2.5, 0, 0);
         steerPID.enableContinuousInput(0, 1); 
 
         
@@ -121,7 +121,7 @@ public class SwerveModule {
         SmartDashboard.putNumber(name + " Target", steerPID.getSetpoint());
     
     // The current error (how far off the wheel is)
-        SmartDashboard.putNumber(name + " Error", steerPID.getPositionError());
+        // SmartDashboard.putNumber(name + " Error", steerPID.getPositionError());
     }
 
     public Rotation2d getAngle() {

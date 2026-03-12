@@ -9,35 +9,39 @@ public class Feeder {
     private TalonFX feederMotor;
     private TalonFX idlerMotor; 
     private final DutyCycleOut feederCycleOut = new DutyCycleOut(0); // Percent voltage out (0-1)
+    private final DutyCycleOut indexerCycleOut = new DutyCycleOut(0);
     private boolean isSpinning = false;
     
 
         
     // One motor to control the indexer speed
-    public Feeder(int feederMotorID) {
+    public Feeder(int feederMotorID, int idlerMotorID) {
         feederMotor = new TalonFX(feederMotorID);
+        idlerMotor = new TalonFX(idlerMotorID);
         // idlerMotor = new TalonFX()
    }
 
    
     // Acts as a switch (spin is either on or off) 
-    public void configureFeed() {
+    public void configureFeedIdle(int diddy) {
         if(isSpinning) {
             isSpinning = false;
             disableSpin();
         } else {
             isSpinning = true;
-            enableSpin();
+            enableSpin(diddy);
         }
 
     }
 
-   public void enableSpin() {
-    feederMotor.setControl(feederCycleOut.withOutput(-0.3));
+   public void enableSpin(int reverse) {
+    feederMotor.setControl(feederCycleOut.withOutput(-0.3 * reverse));
+    idlerMotor.setControl(indexerCycleOut.withOutput(0.5 * reverse));
    }
 
    public void disableSpin() {
     feederMotor.setControl(feederCycleOut.withOutput(0));
+    idlerMotor.setControl(indexerCycleOut.withOutput(0));
    }
 
 }

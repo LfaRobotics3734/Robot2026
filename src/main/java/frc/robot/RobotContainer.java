@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
@@ -16,6 +17,8 @@ import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.climb.Climb;
+import frc.robot.subsystems.climb.Limit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -31,6 +34,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+
+
 /**
  * subsystems, commands, and trigger mappings ->
  */
@@ -42,9 +48,12 @@ public class RobotContainer {
   private Intake intake;
   private Shooter shooter;
   private Feeder feeder;
+  private Climb climb;
   // private final RobotConfig robotConfig;
 
   public RobotContainer() {
+
+    
     
     // Main init for subsystems
     setupIntake();
@@ -52,9 +61,7 @@ public class RobotContainer {
     setupFeeder();
     configureControllerBindings();
 
-	
-    
-    
+   
     
   }
 //Intake definition
@@ -63,14 +70,21 @@ public class RobotContainer {
   }
 //shooter definition
   private void setupShooter() {
-    shooter = new Shooter(ShooterConstants.MotorID.PRIMARY_SHOOTER, ShooterConstants.MotorID.SECONDARY_SHOOTER, ShooterConstants.MotorID.ANGLE_MOTOR_ONE, ShooterConstants.MotorID.ANGLE_MOTOR_TWO, ShooterConstants.MotorID.SHOOTER_INTAKE);
+    shooter = new Shooter(ShooterConstants.MotorID.PRIMARY_SHOOTER, ShooterConstants.MotorID.SECONDARY_SHOOTER, ShooterConstants.MotorID.ANGLE_MOTOR_ONE, ShooterConstants.MotorID.ANGLE_MOTOR_TWO);
   }
 
   //feeder definition
   private void setupFeeder() {
-    feeder = new Feeder(FeederConstants.MotorID.FEEDER_MOTOR);
+    feeder = new Feeder(FeederConstants.MotorID.FEEDER_MOTOR, FeederConstants.MotorID.SHOOTER_INTAKE);
   }
 
+  public void setupClimb() {
+    climb = new Climb(ClimbConstants.MotorID.CLIMB_MOTOR);
+  }
+
+  public void startTask () {
+    new Limit(climb.getMotor()).schedule();
+  }
 
   private void configureControllerBindings() {
 
@@ -87,7 +101,7 @@ public class RobotContainer {
 
 
 
-      //trigger shooter angle for dpad left
+      // Trigger shooter angle for d-pad left
       m_xboxController.povLeft()
       .whileTrue(Commands.run(() -> shooter.adjustAngle(0.04))
       .finallyDo(() -> shooter.stopAngle()));
@@ -97,13 +111,21 @@ public class RobotContainer {
 
 
       
-      // Will either turn the spin motor on or off (runs each time A button is pressed)
-      // m_xboxController.a().onTrue(new InstantCommand(() -> intake.configureSpin()));
-      //96.7% sure that this will turn the primary and secondary shoot motors on(runs when b is pressed)
-      // m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> feeder.configureFeed()));
-      m_xboxController.b().onTrue(new InstantCommand(() -> intake.configureSpin()));
-      //turns on indexer at the same time
-      // m_xboxController.x().onTrue(new InstantCommand(() -> feeder.configureFeed()));
+      // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
+      m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1)));
+      m_xboxController.b().onTrue(new InstantCommand(() -> intake.configureSpin(1)));
+    
+      // turns on indexer and feed at the same time
+      m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> {
+        feeder.configureFeedIdle(1);
+      }));
+      // safety that runs everything backward
+      m_xboxController.x().onTrue(new InstantCommand(()->{
+        feeder.configureFeedIdle(-1);
+        intake.configureSpin(-1);
+        shooter.configureShoot(-1);
+        
+      }));
 
 
     // SwerveDrive JoyStick Below -> 
@@ -125,7 +147,7 @@ public class RobotContainer {
   }
 
 
-  public Command getAutonomousCommand() {
+ /*  public Command getAutonomousCommand() {
 
     String autoPath = "";
     Command autoCommand = new PathPlannerAuto(autoPath);
@@ -135,5 +157,6 @@ public class RobotContainer {
 
     return autoCommand;
     
-  }
+  }*/
 }
+  

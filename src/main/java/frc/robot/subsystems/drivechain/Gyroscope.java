@@ -28,11 +28,12 @@ public Gyroscope() {
      * Returns the heading of the robot as a Rotation2d.
      */
     public Rotation2d getAngle() {
-        Rotation2d angle = navX.getRotation2d();        
+        Rotation2d angle = navX.getRotation2d();
         if (angle == null) {
+         System.out.println("Received null angle!");
          return new Rotation2d(0); 
          }
-        
+        angle = angle.plus(Rotation2d.fromDegrees(90));        
         return angle;
 
         // return new Rotation2d();

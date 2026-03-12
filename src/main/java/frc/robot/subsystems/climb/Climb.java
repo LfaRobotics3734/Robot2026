@@ -1,27 +1,35 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.climb;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 
 
-public class Elevator {
+public class Climb {
     private TalonFX motor;
     double motorRot = 0;
     double maxMotorRot = 0;
+    private boolean foundMin = false;
 
     private final DutyCycleOut voltageOut = new DutyCycleOut(0);
 
-    public Elevator(int motorID) {
+    public Climb(int motorID) {
         motor = new TalonFX(motorID);
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motor.getConfigurator().apply(motorConfig);
-
+            
         motor.setPosition(0);
     }
 
+
+
+
+        
 
     public void enableSpin() {
         motorRot = motor.getPosition().getValueAsDouble();
@@ -36,4 +44,7 @@ public class Elevator {
 
 
 
+    public TalonFX getMotor() {
+        return motor;
+    }
 }

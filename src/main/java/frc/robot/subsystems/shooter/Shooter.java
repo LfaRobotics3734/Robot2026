@@ -16,13 +16,12 @@ public class Shooter {
     private TalonFX secondaryMotor;
     private TalonFX angleMotor1;
     private TalonFX angleMotor2;
-    private TalonFX idlerMotor;
     private final DutyCycleOut shooterCycleOut = new DutyCycleOut(0);
     private final DutyCycleOut angleCycleOut = new DutyCycleOut(0); 
     private boolean isSpinning = false;
     
     //Motor variables 
-    public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID, int idlerMotorID) {
+    public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID) {
         //H: shooter definition
         
         primaryMotor = new TalonFX(primaryMotorID);
@@ -31,7 +30,6 @@ public class Shooter {
         angleMotor1 = new TalonFX(angleMotor1ID);
         angleMotor2 = new TalonFX(angleMotor2ID);
 
-        idlerMotor = new TalonFX(idlerMotorID);
         // Create Break Mode Config so motors lock after dutyCycleOut
         TalonFXConfiguration angleConfig1 = new TalonFXConfiguration();
         angleConfig1.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -74,7 +72,7 @@ public class Shooter {
     public void adjustAngle(double speed) {
     speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
     if(getAngle(angleMotor1) < 0.95 && getAngle(angleMotor1) > -0.007) { // IF we havent hit max rotations
-        angleMotor1.setControl(angleCycleOut.withOutput(speed));
+        angleMotor1.setControl(angleCycleOut.withOutput(speed * 0.5));
     }
     if(getAngle(angleMotor2) > -2 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
         angleMotor2.setControl(angleCycleOut.withOutput(-speed * 2));
@@ -95,13 +93,13 @@ public class Shooter {
 
 
     // Acts as a switch (spin is either on or off) 
-    public void configureShoot() {
+    public void configureShoot(int diddy) {
         if(isSpinning) {
             isSpinning = false;
             disableShoot();
         } else {
             isSpinning = true;
-            enableShoot(.5, .3);
+            enableShoot(.8 * diddy, .4 * diddy);
         }
 
     }
@@ -111,9 +109,8 @@ public class Shooter {
 //H: I disabled the for loops since there needs to be OPPOSITE spin on shooter motors
     public void enableShoot(double shooter, double idler) {
         
-        primaryMotor.setControl(shooterCycleOut.withOutput(-shooter));
-        secondaryMotor.setControl(shooterCycleOut.withOutput(shooter));
-        idlerMotor.setControl(shooterCycleOut.withOutput(idler));
+            primaryMotor.setControl(shooterCycleOut.withOutput(-shooter));
+            secondaryMotor.setControl(shooterCycleOut.withOutput(shooter));
         
     }
    
@@ -121,7 +118,6 @@ public class Shooter {
     public void disableShoot() {
         primaryMotor.setControl(shooterCycleOut.withOutput(0));
         secondaryMotor.setControl(shooterCycleOut.withOutput(0));
-        idlerMotor.setControl(shooterCycleOut.withOutput(0));
     }
 
 
