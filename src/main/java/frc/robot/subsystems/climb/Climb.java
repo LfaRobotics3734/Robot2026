@@ -23,9 +23,7 @@ public class Climb {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motor.getConfigurator().apply(motorConfig);
             
-        motor.setPosition(0);
     }
-
 
 
 

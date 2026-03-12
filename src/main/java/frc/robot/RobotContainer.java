@@ -19,6 +19,7 @@ import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Limit;
+import frc.robot.subsystems.climb.Max;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -37,6 +38,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 
+
 /**
  * subsystems, commands, and trigger mappings ->
  */
@@ -49,6 +51,7 @@ public class RobotContainer {
   private Shooter shooter;
   private Feeder feeder;
   private Climb climb;
+  private boolean goingUp = false;
   // private final RobotConfig robotConfig;
 
   public RobotContainer() {
@@ -62,6 +65,8 @@ public class RobotContainer {
     configureControllerBindings();
 
     setupClimb();
+
+    registerCommands();
 
    
     
@@ -88,6 +93,8 @@ public class RobotContainer {
     new Limit(climb.getMotor()).schedule();
   }
 
+
+
   private void configureControllerBindings() {
 
     // xBox Operator Below ->
@@ -104,14 +111,15 @@ public class RobotContainer {
 
 
       // Trigger shooter angle for d-pad left
-      m_xboxController.povLeft()
-      .whileTrue(Commands.run(() -> shooter.adjustAngle(0.04))
-      .finallyDo(() -> shooter.stopAngle()));
-      m_xboxController.povRight()
-      .whileTrue(Commands.run(() -> shooter.adjustAngle(-0.04))
-      .finallyDo(() -> shooter.stopAngle()));
+      // m_xboxController.povLeft()
+      // .whileTrue(Commands.run(() -> shooter.adjustAngle(0.04))
+      // .finallyDo(() -> shooter.stopAngle()));
+      // m_xboxController.povRight()
+      // .whileTrue(Commands.run(() -> shooter.adjustAngle(-0.04))
+      // .finallyDo(() -> shooter.stopAngle()));
 
-
+      new Trigger(() -> m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.adjustAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
+      new Trigger(() -> m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.adjustAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
       m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1)));
@@ -127,6 +135,19 @@ public class RobotContainer {
         intake.configureSpin(-1);
         shooter.configureShoot(-1);
         
+      }));
+
+
+
+      m_xboxController.y().onTrue(new InstantCommand(() -> {
+        
+        if(goingUp) {
+          new Limit(climb.getMotor()).schedule();
+          goingUp = false;
+        } else if(climb.getMotor().getPosition().getValueAsDouble() < 1) {
+          new Max(climb.getMotor()).schedule();
+          goingUp = true;
+        }
       }));
 
 
@@ -149,16 +170,30 @@ public class RobotContainer {
   }
 
 
- /*  public Command getAutonomousCommand() {
+  public Command getAutonomousCommand() {
 
     String autoPath = "";
     Command autoCommand = new PathPlannerAuto(autoPath);
 
-
+    
 
 
     return autoCommand;
     
-  }*/
+  }
+
+
+  private void registerCommands() {
+
+    NamedCommands.registerCommands("startShooter", new InstantCommand(() -> {
+      shooter.configureShoot(1);
+    }));
+
+    NamedCommands.registerCommands("stopShooter", new InstantCommand(() -> {
+      shooter.configureShoot(0);
+    }))
+
+
+  }
 }
   

@@ -4,26 +4,31 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 
-public class Limit extends CommandBase {
+public class Limit extends Command {
     private TalonFX motor;
     private DutyCycleOut cycleOut = new DutyCycleOut(0);
     private StatusSignal<Current> currentSignal;
     private StatusSignal<AngularVelocity> velocitySignal;
     private double current = 0;
     private double velocity = 0;
+    private double speed = 0.25; // pos = up clockwise - neg = down counter
+
 
     public Limit(TalonFX talonMotor) {
         this.motor = talonMotor;
+
+
     }
     
     @Override
     public void execute() {
-        motor.setControl(cycleOut.withOutput(-0.025));
+    
+        motor.setControl(cycleOut.withOutput(-speed));
         currentSignal = motor.getStatorCurrent();
         velocitySignal = motor.getVelocity();
     }
@@ -38,11 +43,18 @@ public class Limit extends CommandBase {
         SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         SmartDashboard.putNumber("Climb Motor Current", current);
 
-        return current > 10 && Math.abs(velocity) < 0.1;
+        return current > 2 && Math.abs(velocity) < speed * 90; // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
     }
 
     public void end(boolean interuppted) {
         motor.setControl(cycleOut.withOutput(0));
+
+        motor.setPosition(0);
+            
+        while(Math.abs(motor.getPosition().getValueAsDouble()) > 0.005) {
+            motor.setPosition(0);
+        }
+
     }
 
 
