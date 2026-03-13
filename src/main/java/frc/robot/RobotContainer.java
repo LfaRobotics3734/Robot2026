@@ -21,6 +21,7 @@ import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.Limit;
 import frc.robot.subsystems.climb.Max;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -55,6 +56,7 @@ public class RobotContainer {
   private Feeder feeder;
   private Climb climb;
   private boolean goingUp = false;
+  private int shooterPos = 0; // 0-lowest point, 1-mid point, 2-max
   // private final RobotConfig robotConfig;
 
   public RobotContainer() {
@@ -92,6 +94,11 @@ public class RobotContainer {
     climb = new Climb(ClimbConstants.MotorID.CLIMB_MOTOR);
   }
 
+  /** Called from Robot.teleopPeriodic(); runs shooter angle position control. */
+  public void teleopPeriodic() {
+    shooter.runAnglePositionControl();
+  }
+
   public void startTask () {
     new Limit(climb.getMotor()).schedule();
   }
@@ -121,8 +128,31 @@ public class RobotContainer {
       // .whileTrue(Commands.run(() -> shooter.adjustAngle(-0.04))
       // .finallyDo(() -> shooter.stopAngle()));
 
-      new Trigger(() -> m_xboxController.getLeftY() == 1).whileTrue(Commands.run(() -> shooter.adjustAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
-      new Trigger(() -> m_xboxController.getLeftY() == -1).whileTrue(Commands.run(() -> shooter.adjustAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
+      // Stick threshold so full up/down is detected reliably (avoid == 1 / == -1 float issues)
+      final double stickUp = 0.9;
+      final double stickDown = -0.9;
+
+      new Trigger(() -> m_xboxController.getLeftY() >= stickUp && shooterPos != 2).onTrue(new InstantCommand(() -> {
+        shooterPos++;
+        shooter.adjustAngle(shooterPos);
+      }));
+
+      // At max (2): rumble when they press up again
+      new Trigger(() -> m_xboxController.getLeftY() >= stickUp && shooterPos == 2)
+      .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
+      .andThen(new WaitCommand(0.5))
+      .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
+
+      // At min (0): rumble when they press down again
+      new Trigger(() -> m_xboxController.getLeftY() <= stickDown && shooterPos == 0)
+      .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
+      .andThen(new WaitCommand(0.5))
+      .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
+
+      new Trigger(() -> m_xboxController.getLeftY() <= stickDown && shooterPos > 0).onTrue(new InstantCommand(() -> {
+        shooterPos--;
+        shooter.adjustAngle(shooterPos);
+      }));
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
       m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1)));

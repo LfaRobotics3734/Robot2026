@@ -17,8 +17,11 @@ public class Shooter {
     private TalonFX angleMotor1;
     private TalonFX angleMotor2;
     private final DutyCycleOut shooterCycleOut = new DutyCycleOut(0);
-    private final DutyCycleOut angleCycleOut = new DutyCycleOut(0); 
+    private final DutyCycleOut angleCycleOut = new DutyCycleOut(0);
     private boolean isSpinning = false;
+    /** Target angle position: 0 = lowest, 1 = mid, 2 = highest. */
+    private int targetAnglePosition = 0;
+    private boolean hasZeroedAtLow = false;
     
     //Motor variables 
     public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID) {
@@ -69,24 +72,60 @@ public class Shooter {
         return motor.getPosition().getValueAsDouble();
     }
 
-//H: adjusting the position of the shooter
-    public void adjustAngle(double speed) {
-    speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
-    if(getAngle(angleMotor1) < 0.95 && getAngle(angleMotor1) > -0.007) { // IF we havent hit max rotations
-        angleMotor1.setControl(angleCycleOut.withOutput(speed * 0.5));
+    /** Set target angle by position: 0 = lowest (and set new 0 when reached), 1 = mid, 2 = highest. */
+    public void adjustAngle(int position) {
+        targetAnglePosition = MathUtil.clamp(position, 0, 2);
+        if (targetAnglePosition != 0) hasZeroedAtLow = false;
     }
-    if(getAngle(angleMotor2) > -2 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
-        angleMotor2.setControl(angleCycleOut.withOutput(-speed * 2));
+
+    /** Call periodically (e.g. from teleopPeriodic or subsystem periodic) to run position control. */
+    public void runAnglePositionControl() {
+        double t1 = targetRotationsMotor1(targetAnglePosition);
+        double t2 = targetRotationsMotor2(targetAnglePosition);
+        double p1 = getAngle(angleMotor1);
+        double p2 = getAngle(angleMotor2);
+        double err1 = t1 - p1;
+        double err2 = t2 - p2;
+        boolean atTarget = Math.abs(err1) <= ShooterConstants.ANGLE_POSITION_TOLERANCE
+            && Math.abs(err2) <= ShooterConstants.ANGLE_POSITION_TOLERANCE;
+
+        if (atTarget) {
+            stopAngle();
+            if (targetAnglePosition == 0 && !hasZeroedAtLow) {
+                angleMotor1.setPosition(0);
+                angleMotor2.setPosition(0);
+                hasZeroedAtLow = true;
+            }
+        } else {
+            double maxOut = ShooterConstants.ANGLE_POSITION_MAX_OUTPUT;
+            double out1 = MathUtil.clamp(ShooterConstants.ANGLE_POSITION_KP * err1, -maxOut, maxOut);
+            double out2 = MathUtil.clamp(-ShooterConstants.ANGLE_POSITION_KP * err2, -maxOut, maxOut);
+            angleMotor1.setControl(angleCycleOut.withOutput(out1));
+            angleMotor2.setControl(angleCycleOut.withOutput(out2));
+        }
+        SmartDashboard.putNumber("Angle Motor 1 (For = up)", p1);
+        SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", p2);
+        SmartDashboard.putNumber("Shooter Angle Target", targetAnglePosition);
     }
-    SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
-    SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", getAngle(angleMotor2));
-   }
+
+    private double targetRotationsMotor1(int position) {
+        return switch (position) {
+            case 0 -> ShooterConstants.ANGLE_POS_0_M1;
+            case 1 -> ShooterConstants.ANGLE_POS_1_M1;
+            default -> ShooterConstants.ANGLE_POS_2_M1;
+        };
+    }
+
+    private double targetRotationsMotor2(int position) {
+        return switch (position) {
+            case 0 -> ShooterConstants.ANGLE_POS_0_M2;
+            case 1 -> ShooterConstants.ANGLE_POS_1_M2;
+            default -> ShooterConstants.ANGLE_POS_2_M2;
+        };
+    }
 
     public void stopAngle() {
-        
-        //after encoder is added make it os only use motors if it is not in resting position otherwise motors will smoke if too long
-        
-        double kG = 0.020; 
+        double kG = ShooterConstants.ANGLE_HOLD_KG;
         angleMotor1.setControl(angleCycleOut.withOutput(kG));
         angleMotor2.setControl(angleCycleOut.withOutput(-kG));
     }
