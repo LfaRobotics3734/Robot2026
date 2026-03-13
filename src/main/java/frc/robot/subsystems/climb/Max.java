@@ -46,7 +46,7 @@ public class Max extends Command {
         SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         SmartDashboard.putNumber("Climb Motor Current", current);
 
-        return Math.abs(motor.getPosition().getValueAsDouble()) >= 383;
+        return Math.abs(motor.getPosition().getValueAsDouble()) >= 363;
     }
 
 

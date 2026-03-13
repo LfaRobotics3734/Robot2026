@@ -94,15 +94,7 @@ public class RobotContainer {
     climb = new Climb(ClimbConstants.MotorID.CLIMB_MOTOR);
   }
 
-  /** Called from Robot.teleopInit(); zero shooter angle so current position = 0 (no motors). */
-  public void teleopInit() {
-    shooter.zeroAngleEncoders();
-  }
 
-  /** Called from Robot.teleopPeriodic(); runs shooter angle position control. */
-  public void teleopPeriodic() {
-    shooter.runAnglePositionControl();
-  }
 
   public void startTask () {
     new Limit(climb.getMotor()).schedule();
@@ -137,9 +129,9 @@ public class RobotContainer {
       final double stickUp = 0.9;
       final double stickDown = -0.9;
 
-      new Trigger(() -> m_xboxController.getLeftY() >= stickUp && shooterPos != 2).onTrue(new InstantCommand(() -> {
-        shooterPos++;
-        shooter.adjustAngle(shooterPos);
+      new Trigger(() -> m_xboxController.getLeftY() >= stickUp && shooter.targetAngle != 2).onTrue(new InstantCommand(() -> {
+
+        shooter.adjustAngle(shooter.targetAngle + 1);
       }));
 
       // At max (2): rumble when they press up again
@@ -156,7 +148,7 @@ public class RobotContainer {
 
       new Trigger(() -> m_xboxController.getLeftY() <= stickDown && shooterPos > 0).onTrue(new InstantCommand(() -> {
         shooterPos--;
-        shooter.adjustAngle(shooterPos);
+        shooter.adjustAngle(shooterPos - 1);
       }));
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)

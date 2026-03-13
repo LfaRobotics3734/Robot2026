@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "idlerFeeder"
+            "pathName": "1-shootauto"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "1-1"
+            "name": "idlerFeeder"
           }
         },
         {

@@ -19,9 +19,8 @@ public class Shooter {
     private final DutyCycleOut shooterCycleOut = new DutyCycleOut(0);
     private final DutyCycleOut angleCycleOut = new DutyCycleOut(0);
     private boolean isSpinning = false;
-    /** Target angle position: 0 = lowest, 1 = mid, 2 = highest. */
-    private int targetAnglePosition = 0;
-    private boolean hasZeroedAtLow = false;
+    public int targetAngle = 0;
+
     
     //Motor variables 
     public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID) {
@@ -56,15 +55,16 @@ public class Shooter {
 
         SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
         SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", getAngle(angleMotor2));
+
+        int setPosCalls = 0;
+        while(setPosCalls < 3) {
+            angleMotor1.setPosition(0);
+            angleMotor2.setPosition(0);
+            setPosCalls++;
+        }
     }
 
-    /** Set current physical position as 0 (no motor movement). Call when teleop starts so wherever the hood is becomes the reference. */
-    public void zeroAngleEncoders() {
-        angleMotor1.setPosition(0);
-        angleMotor2.setPosition(0);
-        targetAnglePosition = 0;
-        hasZeroedAtLow = true;  // already at "0" so don't re-zero when we reach target 0
-    }
+
 
     public double getAngle(TalonFX motor) {
         return motor.getPosition().getValueAsDouble();
@@ -72,46 +72,14 @@ public class Shooter {
 
     /** Set target angle by position: 0 = lowest (and set new 0 when reached), 1 = mid, 2 = highest. */
     public void adjustAngle(int position) {
-        targetAnglePosition = MathUtil.clamp(position, 0, 2);
-        if (targetAnglePosition != 0) hasZeroedAtLow = false;
-    }
+        targetAngle = position;
 
+
+        
+    }
     /** Call periodically (e.g. from teleopPeriodic or subsystem periodic) to run position control. */
     public void runAnglePositionControl() {
-        double t1 = targetRotationsMotor1(targetAnglePosition);
-        double t2 = targetRotationsMotor2(targetAnglePosition);
-        double p1 = getAngle(angleMotor1);
-        double p2 = getAngle(angleMotor2);
-        double err1 = t1 - p1;
-        double err2 = t2 - p2;
-        boolean atTarget = Math.abs(err1) <= ShooterConstants.ANGLE_POSITION_TOLERANCE
-            && Math.abs(err2) <= ShooterConstants.ANGLE_POSITION_TOLERANCE;
-
-        if (atTarget) {
-            stopAngle();
-            if (targetAnglePosition == 0 && !hasZeroedAtLow) {
-                angleMotor1.setPosition(0);
-                angleMotor2.setPosition(0);
-                hasZeroedAtLow = true;
-            }
-        } else {
-            double maxOut = ShooterConstants.ANGLE_POSITION_MAX_OUTPUT;
-            double minOut = ShooterConstants.ANGLE_POSITION_MIN_OUTPUT;
-            double raw1 = ShooterConstants.ANGLE_POSITION_KP * err1;
-            double raw2 = -ShooterConstants.ANGLE_POSITION_KP * err2;
-            // Apply minimum output when moving so motors overcome static friction
-            double out1 = MathUtil.clamp(raw1, -maxOut, maxOut);
-            double out2 = MathUtil.clamp(raw2, -maxOut, maxOut);
-            if (out1 > 0 && out1 < minOut) out1 = minOut;
-            else if (out1 < 0 && out1 > -minOut) out1 = -minOut;
-            if (out2 > 0 && out2 < minOut) out2 = minOut;
-            else if (out2 < 0 && out2 > -minOut) out2 = -minOut;
-            angleMotor1.setControl(angleCycleOut.withOutput(out1));
-            angleMotor2.setControl(angleCycleOut.withOutput(out2));
-        }
-        SmartDashboard.putNumber("Angle Motor 1 (For = up)", p1);
-        SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", p2);
-        SmartDashboard.putNumber("Shooter Angle Target", targetAnglePosition);
+        
     }
 
     private double targetRotationsMotor1(int position) {
