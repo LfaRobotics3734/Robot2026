@@ -43,7 +43,8 @@ public class Shooter {
         angleConfig2.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleConfig2.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.0;
         angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -2.0;
+        angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -4.0; // Define peak
+        
 
         //H: Angle motors lock
         angleMotor1.getConfigurator().apply(angleConfig1);
@@ -82,7 +83,6 @@ public class Shooter {
    }
 
     public void stopAngle() {
-        // Replace '0.05' with the minimum power needed to keep your arm from falling
         
         //after encoder is added make it os only use motors if it is not in resting position otherwise motors will smoke if too long
         

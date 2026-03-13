@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    //m_robotContainer.startTask();
+    m_robotContainer.startTask();
   }
 
   /** This function is called periodically during operator control. */

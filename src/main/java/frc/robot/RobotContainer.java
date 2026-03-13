@@ -23,6 +23,7 @@ import frc.robot.subsystems.climb.Max;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,6 +36,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -68,10 +70,10 @@ public class RobotContainer {
     setupClimb();
 
     registerCommands();
-
-   
-    
   }
+
+
+  
 //Intake definition
   private void setupIntake() {
     intake = new Intake(IntakeConstants.MotorID.SPIN_MOTOR, IntakeConstants.MotorID.POSITION_MOTOR);
@@ -119,8 +121,8 @@ public class RobotContainer {
       // .whileTrue(Commands.run(() -> shooter.adjustAngle(-0.04))
       // .finallyDo(() -> shooter.stopAngle()));
 
-      new Trigger(() -> m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.adjustAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
-      new Trigger(() -> m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.adjustAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
+      new Trigger(() -> m_xboxController.getLeftY() == 1).whileTrue(Commands.run(() -> shooter.adjustAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
+      new Trigger(() -> m_xboxController.getLeftY() == -1).whileTrue(Commands.run(() -> shooter.adjustAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
       m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1)));
@@ -130,6 +132,8 @@ public class RobotContainer {
       m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> {
         feeder.configureFeedIdle(1);
       }));
+
+
       // safety that runs everything backward
       m_xboxController.x().onTrue(new InstantCommand(()->{
         feeder.configureFeedIdle(-1);
@@ -171,15 +175,20 @@ public class RobotContainer {
   }
 
 
+  public void vibrateController() {
+    m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2);
+  }
+
   public Command getAutonomousCommand() {
 
     String autoPath = "1";
+
     Command autoCommand = new PathPlannerAuto(autoPath);
 
-    
+    Command finalCommand = new SequentialCommandGroup(autoCommand);
 
 
-    return autoCommand;
+    return finalCommand;
     
   }
 

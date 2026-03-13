@@ -16,7 +16,7 @@ public class Limit extends Command {
     private StatusSignal<AngularVelocity> velocitySignal;
     private double current = 0;
     private double velocity = 0;
-    private double speed = 0.25; // pos = up clockwise - neg = down counter
+    private double speed = -0.25; // pos = up clockwise - neg = down counter
 
 
     public Limit(TalonFX talonMotor) {
@@ -53,8 +53,9 @@ public class Limit extends Command {
     public void end(boolean interuppted) {
         motor.setControl(cycleOut.withOutput(0));
 
-            
-        motor.setPosition(0);
+        while (motor.getPosition().getValueAsDouble() > 1.0) {
+            motor.setPosition(0);
+        }
 
     }
 
