@@ -52,11 +52,12 @@ public class Limit extends Command {
 
     public void end(boolean interuppted) {
         motor.setControl(cycleOut.withOutput(0));
+        int motorResets = 0;
 
-        while (motor.getPosition().getValueAsDouble() > 1.0) {
-            motor.setPosition(0);
+        while(motorResets < 3) {
+            motorResets++;
+            motor.setPosition(0);  // reset encoder at bottom; don't block (getPosition can be stale and freeze the thread)
         }
-
     }
 
 

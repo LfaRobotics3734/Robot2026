@@ -76,22 +76,27 @@ public class RobotContainer {
 
 
   
-//Intake definition
+    //Intake definition
   private void setupIntake() {
     intake = new Intake(IntakeConstants.MotorID.SPIN_MOTOR, IntakeConstants.MotorID.POSITION_MOTOR);
   }
-//shooter definition
+    //shooter definition
   private void setupShooter() {
     shooter = new Shooter(ShooterConstants.MotorID.PRIMARY_SHOOTER, ShooterConstants.MotorID.SECONDARY_SHOOTER, ShooterConstants.MotorID.ANGLE_MOTOR_ONE, ShooterConstants.MotorID.ANGLE_MOTOR_TWO);
   }
 
-  //feeder definition
+   //feeder definition
   private void setupFeeder() {
     feeder = new Feeder(FeederConstants.MotorID.FEEDER_MOTOR, FeederConstants.MotorID.SHOOTER_INTAKE);
   }
 
   public void setupClimb() {
     climb = new Climb(ClimbConstants.MotorID.CLIMB_MOTOR);
+  }
+
+  /** Called from Robot.teleopInit(); zero shooter angle so current position = 0 (no motors). */
+  public void teleopInit() {
+    shooter.zeroAngleEncoders();
   }
 
   /** Called from Robot.teleopPeriodic(); runs shooter angle position control. */

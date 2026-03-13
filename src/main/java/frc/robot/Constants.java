@@ -39,7 +39,10 @@ public final class Constants {
     public static final double ANGLE_POS_2_M1 = 0.95;
     public static final double ANGLE_POS_2_M2 = -4.0;
     public static final double ANGLE_POSITION_KP = 0.6;
-    public static final double ANGLE_POSITION_MAX_OUTPUT = 0.05;
+    /** Min duty when moving (overcome static friction). Lower = gentler, may not move. */
+    public static final double ANGLE_POSITION_MIN_OUTPUT = 0.08;
+    /** Max duty for angle motors when moving. */
+    public static final double ANGLE_POSITION_MAX_OUTPUT = 0.20;
     public static final double ANGLE_POSITION_TOLERANCE = 0.02;
     public static final double ANGLE_HOLD_KG = 0.020;
   }

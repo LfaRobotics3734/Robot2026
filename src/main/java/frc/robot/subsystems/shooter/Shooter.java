@@ -54,18 +54,16 @@ public class Shooter {
         angleMotor2.getConfigurator().apply(angleConfig2);
 
 
-        angleMotor1.setPosition(0);
-        angleMotor2.setPosition(0);
-        while(Math.abs(getAngle(angleMotor1)) > 0.005) {
-            angleMotor1.setPosition(0);
-        }
-
-        while(Math.abs(getAngle(angleMotor2)) > 0.005) {
-            angleMotor2.setPosition(0);
-        }
-
         SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
         SmartDashboard.putNumber("Angle Motor 2 (Rev = up)", getAngle(angleMotor2));
+    }
+
+    /** Set current physical position as 0 (no motor movement). Call when teleop starts so wherever the hood is becomes the reference. */
+    public void zeroAngleEncoders() {
+        angleMotor1.setPosition(0);
+        angleMotor2.setPosition(0);
+        targetAnglePosition = 0;
+        hasZeroedAtLow = true;  // already at "0" so don't re-zero when we reach target 0
     }
 
     public double getAngle(TalonFX motor) {
@@ -98,8 +96,16 @@ public class Shooter {
             }
         } else {
             double maxOut = ShooterConstants.ANGLE_POSITION_MAX_OUTPUT;
-            double out1 = MathUtil.clamp(ShooterConstants.ANGLE_POSITION_KP * err1, -maxOut, maxOut);
-            double out2 = MathUtil.clamp(-ShooterConstants.ANGLE_POSITION_KP * err2, -maxOut, maxOut);
+            double minOut = ShooterConstants.ANGLE_POSITION_MIN_OUTPUT;
+            double raw1 = ShooterConstants.ANGLE_POSITION_KP * err1;
+            double raw2 = -ShooterConstants.ANGLE_POSITION_KP * err2;
+            // Apply minimum output when moving so motors overcome static friction
+            double out1 = MathUtil.clamp(raw1, -maxOut, maxOut);
+            double out2 = MathUtil.clamp(raw2, -maxOut, maxOut);
+            if (out1 > 0 && out1 < minOut) out1 = minOut;
+            else if (out1 < 0 && out1 > -minOut) out1 = -minOut;
+            if (out2 > 0 && out2 < minOut) out2 = minOut;
+            else if (out2 < 0 && out2 > -minOut) out2 = -minOut;
             angleMotor1.setControl(angleCycleOut.withOutput(out1));
             angleMotor2.setControl(angleCycleOut.withOutput(out2));
         }
