@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "idlerFeeder"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "1-1"
@@ -13,7 +19,19 @@
         {
           "type": "named",
           "data": {
-            "name": null
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "halt"
           }
         }
       ]

@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -172,7 +173,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    String autoPath = "";
+    String autoPath = "1";
     Command autoCommand = new PathPlannerAuto(autoPath);
 
     
@@ -185,13 +186,18 @@ public class RobotContainer {
 
   private void registerCommands() {
 
-    NamedCommands.registerCommands("startShooter", new InstantCommand(() -> {
+    NamedCommands.registerCommand("idlerFeeder", new InstantCommand(() -> {
+      feeder.configureFeedIdle(1);
+    }));
+
+    NamedCommands.registerCommand("startShooter", new InstantCommand(() -> {
       shooter.configureShoot(1);
     }));
 
-    NamedCommands.registerCommands("stopShooter", new InstantCommand(() -> {
+    NamedCommands.registerCommand("halt", new InstantCommand(() -> {
       shooter.configureShoot(0);
-    }))
+      feeder.configureFeedIdle(0);
+    }));
 
 
   }

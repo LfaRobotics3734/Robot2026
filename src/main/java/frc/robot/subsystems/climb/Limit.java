@@ -24,36 +24,37 @@ public class Limit extends Command {
 
 
     }
-    
     @Override
-    public void execute() {
-    
-        motor.setControl(cycleOut.withOutput(-speed));
+    public void initialize() {
         currentSignal = motor.getStatorCurrent();
         velocitySignal = motor.getVelocity();
     }
 
-    public boolean isFinished() {
+    @Override
+    public void execute() {
+    
+        motor.setControl(cycleOut.withOutput(-speed));
+        currentSignal.refresh();
+        velocitySignal.refresh();
+    }
 
-        current = currentSignal.refresh().getValueAsDouble();
-        velocity = velocitySignal.refresh().getValueAsDouble();
+    public boolean isFinished() {
+        current = currentSignal.getValueAsDouble();
+        velocity = velocitySignal.getValueAsDouble();
 
 
         SmartDashboard.putNumber("Climb Motor Rotations", motor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         SmartDashboard.putNumber("Climb Motor Current", current);
 
-        return current > 2 && Math.abs(velocity) < speed * 90; // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
+        return (current > 2.5); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
     }
 
     public void end(boolean interuppted) {
         motor.setControl(cycleOut.withOutput(0));
 
-        motor.setPosition(0);
             
-        while(Math.abs(motor.getPosition().getValueAsDouble()) > 0.005) {
-            motor.setPosition(0);
-        }
+        motor.setPosition(0);
 
     }
 
