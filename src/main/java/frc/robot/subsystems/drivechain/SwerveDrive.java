@@ -43,7 +43,7 @@ public class SwerveDrive extends SubsystemBase {
     private double xSpeed, ySpeed, rot;
     private Rotation2d currentHeading;
     
-    // Define a max speed for the robot (m/s). Kraken X60s are fast!
+    // Define a max speed for the robot (m/s). Kraken X60s are fast!, check if we have to swith
     public static final double kMaxSpeed = 2; 
 
     public SwerveDrive() {
@@ -98,8 +98,9 @@ public class SwerveDrive extends SubsystemBase {
         }
 
         AutoBuilder.configure(
-            limeLight::getPose2d, 
-            this::resetOrdometry, 
+            this::getPose2d,
+            //limeLight::getPose2d, 
+            this::resetOdometry, 
             this::getRobotRelativeSpeeds, 
             this::driveRelative, 
             new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in
@@ -192,10 +193,12 @@ public class SwerveDrive extends SubsystemBase {
         gyro.zeroYaw();
     }
 
-    public void resetOrdometry(Pose2d pose) {
+    public void resetOdometry(Pose2d pose) {
         // poseEstimator.resetPose(pose);
+        odometry.resetPosition(gyro.getAngle(), getModulePositions(), pose);
+}
         
-    }
+    
 
     @Override
     public void periodic() { // Ticks every 20ms
@@ -213,11 +216,18 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
-        return ChassisSpeeds.fromRobotRelativeSpeeds(xSpeed, ySpeed, rot, currentHeading);
+        //return ChassisSpeeds.fromRobotRelativeSpeeds(xSpeed, ySpeed, rot, currentHeading);
+        return kinematics.toChassisSpeeds(
+        swerveModules[0].getState(),
+        swerveModules[1].getState(),
+        swerveModules[2].getState(),
+        swerveModules[3].getState()
+);
     }
 
     public Pose2d getPose2d() {
-        return limeLight.getPose2d();
+        //return limeLight.getPose2d();
+        return odometry.getPoseMeters();
     }
 
 }

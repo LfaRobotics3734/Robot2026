@@ -102,8 +102,8 @@ public class SwerveModule {
         // 1. Get distance from the Kraken (Drive Motor)
         // Formula: (Rotations / GearRatio) * Circumference
         double motorRotations = driveMotor.getPosition().getValueAsDouble();
-        double wheelCircumference = Units.inchesToMeters(4) * Math.PI;
-        double gearRatio = 6.75; // Example ratio for MK4i L2 - Change to yours!
+        double wheelCircumference = 0.049*2 * Math.PI;
+        double gearRatio = 6.23; // the gear ratio was switched to what was measured
         
         double distanceMeters = (motorRotations / gearRatio) * wheelCircumference;
 
@@ -131,4 +131,14 @@ public class SwerveModule {
         if (correctedRotations < 0) correctedRotations += 1;
         return Rotation2d.fromRotations(correctedRotations);
     }
+
+    //for auton, change once you look through 
+    public SwerveModuleState getState() {
+        //for auton code so far, hardcoded delete when limelight works
+        double motorRotations = driveMotor.getVelocity().getValueAsDouble();
+        double wheelCircumference = 0.049 * 2 * Math.PI;
+        double gearRatio = 6.23;
+        double velocityMetersPerSecond = (motorRotations / gearRatio) * wheelCircumference;
+        return new SwerveModuleState(velocityMetersPerSecond, getAngle());
+}
 }

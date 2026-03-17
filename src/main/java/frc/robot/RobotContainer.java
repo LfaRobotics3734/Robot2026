@@ -13,7 +13,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.Shooter;
-import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig.ModuleConfig;
+//import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig.ModuleConfig;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import frc.robot.subsystems.intake.Intake;
@@ -208,7 +208,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    String autoPath = "1";
+    String autoPath = "trenchShoot";
 
     Command autoCommand = new PathPlannerAuto(autoPath);
 
