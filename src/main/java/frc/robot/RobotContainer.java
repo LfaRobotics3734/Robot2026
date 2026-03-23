@@ -43,6 +43,11 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.StringPublisher;
 
 
 
@@ -51,20 +56,34 @@ import com.ctre.phoenix6.hardware.TalonFX;
  */
 public class RobotContainer {
   // private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final SwerveDrive m_swerveDrive = new SwerveDrive();
+
+
   private CommandJoystick m_driverController;
   private CommandXboxController m_xboxController;
+  private SwerveDrive m_swerveDrive = new SwerveDrive();
   private Intake intake;
   private Shooter shooter;
   private Feeder feeder;
   private Climb climb;
   private Angle angle;
+
   private boolean goingUp = false;
-  // private final RobotConfig robotConfig;
+ 
+
+  private NetworkTable climbTab;
+  private DoublePublisher climbCurrent;
+  private DoublePublisher climbRotations;
+  private DoublePublisher climbVelocity;
+
+  private NetworkTable shooterAngleTab;
+  private DoublePublisher angleMotor1Rotations;
+  private DoublePublisher angleMotor1Velocity;
+  private DoublePublisher angleMotor2Rotations;
+  private DoublePublisher angleMotor2Velocity;
+  
 
   public RobotContainer() {
 
-    
     
     // Main init for subsystems
     setupIntake();
@@ -76,10 +95,30 @@ public class RobotContainer {
     setupClimb();
 
     registerCommands();
+
+    setupShuffleBoard();
+
+
+    
   }
 
 
-  
+  public void setupShuffleBoard() {
+    NetworkTableInstance networkInstance = NetworkTableInstance.getDefault();
+    climbTab = networkInstance.getTable("Climb");
+    climbCurrent = climbTab.getDoubleTopic("Climb Current").publish();
+    climbRotations = climbTab.getDoubleTopic("Climb Rotations").publish();
+    climbVelocity = climbTab.getDoubleTopic("Climb Velocity").publish();
+
+    shooterAngleTab = networkInstance.getTable("ShooterAngle");
+    angleMotor1Rotations = shooterAngleTab.getDoubleTopic("Angle Motor1 Rotations").publish();
+    angleMotor2Rotations = shooterAngleTab.getDoubleTopic("Angle Motor2 Rotations").publish();
+
+    angleMotor1Velocity = shooterAngleTab.getDoubleTopic("Angle Motor1 Velocity").publish();
+    angleMotor2Velocity = shooterAngleTab.getDoubleTopic("Angle Motor2 Velocity").publish();
+
+
+  }
     //Intake definition
   private void setupIntake() {
     intake = new Intake(IntakeConstants.MotorID.SPIN_MOTOR, IntakeConstants.MotorID.POSITION_MOTOR);
@@ -203,9 +242,18 @@ public class RobotContainer {
   }
 
 
-  public void updateShuffleBoard() {
+  public void updateShuffleBoard() { // Periodic
     
+    // Climb
+    climbCurrent.set(climb.getCurrent());
+    climbVelocity.set(climb.getVelocity());
+    climbRotations.set(climb.getMotor().getPosition().getValueAsDouble());
+
+    //
+    angleMotor1Rotations.set(shooter.getAngleMotor1().getPosition().getValueAsDouble());
+    angleMotor2Rotations.set(shooter.getAngleMotor2().getPosition().getValueAsDouble());
   }
+
   public Command getAutonomousCommand() {
 
     String autoPath = "trenchShoot";

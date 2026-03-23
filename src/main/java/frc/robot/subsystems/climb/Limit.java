@@ -47,9 +47,9 @@ public class Limit extends Command {
         velocity = velocitySignal.getValueAsDouble();
 
 
-        SmartDashboard.putNumber("Climb Motor Rotations", motor.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Climb Motor Velocity", velocity);
-        SmartDashboard.putNumber("Climb Motor Current", current);
+        // SmartDashboard.putNumber("Climb Motor Rotations", motor.getPosition().getValueAsDouble());
+        // SmartDashboard.putNumber("Climb Motor Velocity", velocity);
+        // SmartDashboard.putNumber("Climb Motor Current", current);
 
         return (current > 14); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
     }

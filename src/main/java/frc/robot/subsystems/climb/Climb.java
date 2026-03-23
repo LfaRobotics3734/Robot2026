@@ -8,9 +8,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.AngularVelocity;
+import com.ctre.phoenix6.StatusSignal;
+
 
 public class Climb {
     private TalonFX motor;
+    private StatusSignal<Current> currentSignal;
+    private StatusSignal<AngularVelocity> velocitySignal;
+
     double motorRot = 0;
     double maxMotorRot = 0;
     private boolean foundMin = false;
@@ -23,10 +30,20 @@ public class Climb {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motor.getConfigurator().apply(motorConfig);
             
+        currentSignal = motor.getStatorCurrent();
+        velocitySignal = motor.getVelocity();
     }
 
 
+    public double getCurrent() {
+        currentSignal.refresh();
+        return currentSignal.getValueAsDouble();
+    }
 
+    public double getVelocity() {
+        velocitySignal.refresh();
+        return velocitySignal.getValueAsDouble();
+    }
         
 
     public void enableSpin() {
