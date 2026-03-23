@@ -27,9 +27,10 @@ public class Angle {
     }
 
     public void adjustLevel(int dir) {
+        int oldLevel = level;
         level = MathUtil.clamp(level + dir, 0,2); // Sets min of 0, max of 2
 
-        this.new AdjustPosition().schedule();
+        this.new AdjustPosition(level - oldLevel).schedule();
     }
 
     public int getLevel() {
@@ -37,7 +38,12 @@ public class Angle {
     }
 
     public class AdjustPosition extends Command {
-
+        private int multiplier; // Either neg speed or pos speed
+        
+        public AdjustPosition(int multi) {
+            this.multiplier = multi;
+        }
+        
         @Override
         public void initialize() {
 
@@ -45,8 +51,8 @@ public class Angle {
 
         @Override
         public void execute() {
-            angleMotor1.setControl(cycleOutMotor1.withOutput(angleMotor1Speed));
-            angleMotor2.setControl(cycleOutMotor2.withOutput(angleMotor2Speed));
+            angleMotor1.setControl(cycleOutMotor1.withOutput(angleMotor1Speed * multiplier));
+            angleMotor2.setControl(cycleOutMotor2.withOutput(angleMotor2Speed * multiplier));
         }
 
 

@@ -1,4 +1,6 @@
 package frc.robot.subsystems.climb;
+import edu.wpi.first.wpilibj.Preferences;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,6 +26,8 @@ public class Limit extends Command {
 
 
     }
+
+    
     @Override
     public void initialize() {
         currentSignal = motor.getStatorCurrent();
@@ -33,7 +37,7 @@ public class Limit extends Command {
     @Override
     public void execute() {
     
-        motor.setControl(cycleOut.withOutput(-speed));
+        motor.setControl(cycleOut.withOutput(speed));
         currentSignal.refresh();
         velocitySignal.refresh();
     }
@@ -47,7 +51,7 @@ public class Limit extends Command {
         SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         SmartDashboard.putNumber("Climb Motor Current", current);
 
-        return (current > 2.5); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
+        return (current > 14); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
     }
 
     public void end(boolean interuppted) {
@@ -58,6 +62,7 @@ public class Limit extends Command {
             motorResets++;
             motor.setPosition(0);  // reset encoder at bottom; don't block (getPosition can be stale and freeze the thread)
         }
+        Preferences.setBoolean("ClimbAtZero", true);
     }
 
 

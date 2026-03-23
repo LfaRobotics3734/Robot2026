@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import edu.wpi.first.wpilibj.Preferences;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -41,6 +42,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+
 
 
 
@@ -101,8 +103,13 @@ public class RobotContainer {
   }
 
   public void startTask () {
-    new Limit(climb.getMotor()).schedule();
-    angle.new Limit().schedule();
+    
+    boolean climbAtZero = Preferences.getBoolean("ClimbAtZero", false);
+    if(!climbAtZero) {
+      new Limit(climb.getMotor()).schedule();
+    }
+
+    //angle.new Limit().schedule();
     
   }
 
@@ -161,7 +168,7 @@ public class RobotContainer {
 
 
       m_xboxController.y().onTrue(new InstantCommand(() -> {
-        
+        System.out.println("Pressed Y with goingup as: " + goingUp);
         if(goingUp) {
           new Limit(climb.getMotor()).schedule();
           goingUp = false;
@@ -195,6 +202,10 @@ public class RobotContainer {
     m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2);
   }
 
+
+  public void updateShuffleBoard() {
+    
+  }
   public Command getAutonomousCommand() {
 
     String autoPath = "trenchShoot";
