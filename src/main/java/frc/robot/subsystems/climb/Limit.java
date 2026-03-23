@@ -27,17 +27,19 @@ public class Limit extends Command {
 
     }
 
-    
+
     @Override
     public void initialize() {
         currentSignal = motor.getStatorCurrent();
         velocitySignal = motor.getVelocity();
+        Preferences.setBoolean("ClimbAtZero", false);
+
     }
 
     @Override
     public void execute() {
     
-        motor.setControl(cycleOut.withOutput(speed));
+        motor.setControl(cycleOut.withOutput(-speed));
         currentSignal.refresh();
         velocitySignal.refresh();
     }
@@ -51,18 +53,22 @@ public class Limit extends Command {
         // SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         // SmartDashboard.putNumber("Climb Motor Current", current);
 
-        return (current > 14); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
+        return (Math.abs(current) > 2.3); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
     }
 
     public void end(boolean interuppted) {
         motor.setControl(cycleOut.withOutput(0));
+        
+        
         int motorResets = 0;
 
         while(motorResets < 3) {
             motorResets++;
             motor.setPosition(0);  // reset encoder at bottom; don't block (getPosition can be stale and freeze the thread)
         }
-        Preferences.setBoolean("ClimbAtZero", true);
+        if(!interuppted) {
+            Preferences.setBoolean("ClimbAtZero", true);
+        }
     }
 
 

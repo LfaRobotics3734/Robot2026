@@ -74,6 +74,7 @@ public class RobotContainer {
   private DoublePublisher climbCurrent;
   private DoublePublisher climbRotations;
   private DoublePublisher climbVelocity;
+  private BooleanPublisher climbAtZero;
 
   private NetworkTable shooterAngleTab;
   private DoublePublisher angleMotor1Rotations;
@@ -109,6 +110,7 @@ public class RobotContainer {
     climbCurrent = climbTab.getDoubleTopic("Climb Current").publish();
     climbRotations = climbTab.getDoubleTopic("Climb Rotations").publish();
     climbVelocity = climbTab.getDoubleTopic("Climb Velocity").publish();
+    climbAtZero = climbTab.getBooleanTopic("At Zero").publish();
 
     shooterAngleTab = networkInstance.getTable("ShooterAngle");
     angleMotor1Rotations = shooterAngleTab.getDoubleTopic("Angle Motor1 Rotations").publish();
@@ -142,7 +144,6 @@ public class RobotContainer {
   }
 
   public void startTask () {
-    
     boolean climbAtZero = Preferences.getBoolean("ClimbAtZero", false);
     if(!climbAtZero) {
       new Limit(climb.getMotor()).schedule();
@@ -248,7 +249,7 @@ public class RobotContainer {
     climbCurrent.set(climb.getCurrent());
     climbVelocity.set(climb.getVelocity());
     climbRotations.set(climb.getMotor().getPosition().getValueAsDouble());
-
+    climbAtZero.set(Preferences.getBoolean("ClimbAtZero", false));
     //
     angleMotor1Rotations.set(shooter.getAngleMotor1().getPosition().getValueAsDouble());
     angleMotor2Rotations.set(shooter.getAngleMotor2().getPosition().getValueAsDouble());
