@@ -89,10 +89,10 @@ public class SwerveDrive extends SubsystemBase {
 
         try {
             robotConfig = RobotConfig.fromGUISettings();
-        } catch (IOException e) {
+        } catch (IOException e) { // Issue in obtaining file
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (ParseException e) { // Invalid Syntax
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

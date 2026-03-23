@@ -46,7 +46,7 @@ public class Max extends Command {
         SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         SmartDashboard.putNumber("Climb Motor Current", current);
 
-        return Math.abs(motor.getPosition().getValueAsDouble()) >= 363;
+        return Math.abs(motor.getPosition().getValueAsDouble()) >= 363; // about 360 rotations needed for it to reach the peak
     }
 
 

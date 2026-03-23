@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -77,26 +78,15 @@ public class Shooter {
 
         
     }
-    /** Call periodically (e.g. from teleopPeriodic or subsystem periodic) to run position control. */
-    public void runAnglePositionControl() {
-        
+
+    public TalonFX getAngleMotor1() {
+        return angleMotor1;
     }
 
-    private double targetRotationsMotor1(int position) {
-        return switch (position) {
-            case 0 -> ShooterConstants.ANGLE_POS_0_M1;
-            case 1 -> ShooterConstants.ANGLE_POS_1_M1;
-            default -> ShooterConstants.ANGLE_POS_2_M1;
-        };
+    public TalonFX getAngleMotor2() {
+        return angleMotor2;
     }
 
-    private double targetRotationsMotor2(int position) {
-        return switch (position) {
-            case 0 -> ShooterConstants.ANGLE_POS_0_M2;
-            case 1 -> ShooterConstants.ANGLE_POS_1_M2;
-            default -> ShooterConstants.ANGLE_POS_2_M2;
-        };
-    }
 
     public void stopAngle() {
         double kG = ShooterConstants.ANGLE_HOLD_KG;

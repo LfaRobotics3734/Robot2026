@@ -31,19 +31,6 @@ public final class Constants {
       public static final int PRIMARY_SHOOTER = 7;
       public static final int SECONDARY_SHOOTER = 6;
     }
-    /** Angle positions: 0 = lowest, 1 = mid, 2 = highest. Motor1: forward = up (0..0.95). Motor2: reverse = up (0..-4). */
-    public static final double ANGLE_POS_0_M1 = 0.0;
-    public static final double ANGLE_POS_0_M2 = 0.0;
-    public static final double ANGLE_POS_1_M1 = 0.475;
-    public static final double ANGLE_POS_1_M2 = -2.0;
-    public static final double ANGLE_POS_2_M1 = 0.95;
-    public static final double ANGLE_POS_2_M2 = -4.0;
-    public static final double ANGLE_POSITION_KP = 0.6;
-    /** Min duty when moving (overcome static friction). Lower = gentler, may not move. */
-    public static final double ANGLE_POSITION_MIN_OUTPUT = 0.08;
-    /** Max duty for angle motors when moving. */
-    public static final double ANGLE_POSITION_MAX_OUTPUT = 0.20;
-    public static final double ANGLE_POSITION_TOLERANCE = 0.02;
     public static final double ANGLE_HOLD_KG = 0.020;
   }
 
