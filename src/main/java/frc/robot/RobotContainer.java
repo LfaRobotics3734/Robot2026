@@ -155,7 +155,7 @@ public class RobotContainer {
       new Limit(climb.getMotor()).schedule();
     }
 
-    angle.new Limit().schedule();
+    // angle.new Limit().schedule();
     
   }
 
@@ -224,7 +224,7 @@ public class RobotContainer {
         if(goingUp) {
           new Limit(climb.getMotor()).schedule();
           goingUp = false;
-        } else if(climb.getMotor().getPosition().getValueAsDouble() < 1) {
+        } else {
           new Max(climb.getMotor()).schedule();
           goingUp = true;
         }

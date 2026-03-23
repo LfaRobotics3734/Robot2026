@@ -32,6 +32,7 @@ public class SwerveDrive extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
+    private final SwerveDrivePoseEstimator poseEstimator;
     private final Gyroscope gyro; 
     private final LimeLight limeLight;
     private final SwerveModule[] swerveModules;
@@ -44,7 +45,7 @@ public class SwerveDrive extends SubsystemBase {
     private Rotation2d currentHeading;
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!, check if we have to swith
-    public static final double kMaxSpeed = 2; 
+    public static final double kMaxSpeed = 4.353; 
 
     public SwerveDrive() {
         gyro = new Gyroscope();
@@ -81,6 +82,13 @@ public class SwerveDrive extends SubsystemBase {
             kinematics,
             gyro.getAngle(),
             getModulePositions(),
+            new Pose2d(0, 0, new Rotation2d())
+        );
+
+        poseEstimator = new SwerveDrivePoseEstimator(
+            kinematics, 
+            gyro.getAngle(), 
+            getModulePositions(), 
             new Pose2d(0, 0, new Rotation2d())
         );
 
@@ -195,25 +203,29 @@ public class SwerveDrive extends SubsystemBase {
 
     public void resetOdometry(Pose2d pose) {
         // poseEstimator.resetPose(pose);
+        poseEstimator.resetPosition(gyro.getAngle(), getModulePositions(), pose);
+
         odometry.resetPosition(gyro.getAngle(), getModulePositions(), pose);
 }
         
     
 
     @Override
-    public void periodic() { // Ticks every 20ms
-        // Update the odometry with current gyro and wheel positions
-        
-        odometry.update(gyro.getAngle(), getModulePositions());
+public void periodic() {
+    poseEstimator.update(gyro.getAngle(), getModulePositions());
 
-    // Send module data to Shuffleboard
-        swerveModules[0].updateTelemetry("FL");
-        swerveModules[1].updateTelemetry("FR");
-        swerveModules[2].updateTelemetry("BL");
-        swerveModules[3].updateTelemetry("BR");
-    
-        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees()); // Range of 0 - 360 (placed in shuffleboard)
+    if (limeLight.hasPose()) {
+        LimeLight.TimestampPose2d tpose = limeLight.getTimestampedPose();
+        poseEstimator.addVisionMeasurement(tpose.getPose2d(), tpose.getTimestamp());
     }
+
+    swerveModules[0].updateTelemetry("FL");
+    swerveModules[1].updateTelemetry("FR");
+    swerveModules[2].updateTelemetry("BL");
+    swerveModules[3].updateTelemetry("BR");
+
+    SmartDashboard.putNumber("Gyro Angle", gyro.getAngle().getDegrees());
+}
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
         //return ChassisSpeeds.fromRobotRelativeSpeeds(xSpeed, ySpeed, rot, currentHeading);
@@ -227,7 +239,8 @@ public class SwerveDrive extends SubsystemBase {
 
     public Pose2d getPose2d() {
         //return limeLight.getPose2d();
-        return odometry.getPoseMeters();
+       // return odometry.getPoseMeters();
+        return poseEstimator.getEstimatedPosition();
     }
 
 }
