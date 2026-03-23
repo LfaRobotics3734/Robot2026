@@ -150,6 +150,7 @@ public class RobotContainer {
 
   public void startTask () {
     boolean climbAtZero = Preferences.getBoolean("ClimbAtZero", false);
+
     if(!climbAtZero) {
       new Limit(climb.getMotor()).schedule();
     }
@@ -174,21 +175,27 @@ public class RobotContainer {
       .finallyDo(() -> intake.stopPosition()));
 
 
-      final double stickUp = 0.9;
-      final double stickDown = -0.9;
+      final double stickUp = -0.9;
+      final double stickDown = 0.9;
 
-      new Trigger(() -> m_xboxController.getLeftY() >= stickUp && angle.getLevel() != 2).onTrue(new InstantCommand(() -> {
+      new Trigger(() -> m_xboxController.getLeftY() <= stickUp && angle.getLevel() != 2).onTrue(new InstantCommand(() -> {
 
         angle.adjustLevel(1);
       }));
 
       // At max (2): rumble when they press up again
-      new Trigger(() -> (m_xboxController.getLeftY() >= stickUp) || (m_xboxController.getLeftY() <= stickDown) && (angle.getLevel() == 2 || angle.getLevel() == 0))
+      new Trigger(() -> (m_xboxController.getLeftY() >= stickDown && angle.getLevel() == 0))
       .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
       .andThen(new WaitCommand(0.5))
       .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
 
-      new Trigger(() -> m_xboxController.getLeftY() <= stickDown && angle.getLevel() > 0).onTrue(new InstantCommand(() -> {
+      new Trigger(() -> (m_xboxController.getLeftY() <= stickUp && angle.getLevel() == 2)) 
+      .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
+      .andThen(new WaitCommand(0.5))
+      .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
+    
+
+      new Trigger(() -> m_xboxController.getLeftY() >= stickDown && angle.getLevel() > 0).onTrue(new InstantCommand(() -> {
         angle.adjustLevel(-1);
       }));
       
@@ -252,10 +259,9 @@ public class RobotContainer {
     climbVelocity.set(climb.getVelocity());
     climbRotations.set(climb.getMotor().getPosition().getValueAsDouble());
     climbAtZero.set(Preferences.getBoolean("ClimbAtZero", false));
-    //
+    //Shooter Angle
     angleMotor1Rotations.set(shooter.getAngleMotor1().getPosition().getValueAsDouble());
     angleMotor2Rotations.set(shooter.getAngleMotor2().getPosition().getValueAsDouble());
-
     angleLevel.set(angle.getLevel());
     YStickInput.set(m_xboxController.getLeftY());
   }
