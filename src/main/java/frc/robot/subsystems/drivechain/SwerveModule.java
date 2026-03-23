@@ -135,7 +135,7 @@ public class SwerveModule {
     //for auton, change once you look through 
     public SwerveModuleState getState() {
         //for auton code so far, hardcoded delete when limelight works
-        double motorRotations = driveMotor.getVelocity().getValueAsDouble();
+        double motorRotations = driveMotor.getPosition().getValueAsDouble();
         double wheelCircumference = 0.049 * 2 * Math.PI;
         double gearRatio = 6.23;
         double velocityMetersPerSecond = (motorRotations / gearRatio) * wheelCircumference;

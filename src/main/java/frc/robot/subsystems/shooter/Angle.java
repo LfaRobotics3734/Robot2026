@@ -8,10 +8,8 @@ import edu.wpi.first.math.MathUtil;
 public class Angle {
     private TalonFX angleMotor1;
     private TalonFX angleMotor2;
-    private double angleMotor1MaxRot = 0.95;
-    private double angleMotor2MaxRot = -3;
-    private double angleMotor1Speed = 0.01;
-    private double angleMotor2Speed= angleMotor1Speed * 3;
+    private double angleMotor1Speed = 0.02;
+    private double angleMotor2Speed= 0.01;
     private DutyCycleOut cycleOutMotor1 = new DutyCycleOut(0);
     private DutyCycleOut cycleOutMotor2 = new DutyCycleOut(0);
 
@@ -38,7 +36,7 @@ public class Angle {
     }
 
     public class AdjustPosition extends Command {
-        private int multiplier; // Either neg speed or pos speed
+        private int multiplier = 1; // Either neg speed or pos speed
         
         public AdjustPosition(int multi) {
             this.multiplier = multi;
@@ -52,14 +50,14 @@ public class Angle {
         @Override
         public void execute() {
             angleMotor1.setControl(cycleOutMotor1.withOutput(angleMotor1Speed * multiplier));
-            angleMotor2.setControl(cycleOutMotor2.withOutput(angleMotor2Speed * multiplier));
+            angleMotor2.setControl(cycleOutMotor2.withOutput(-angleMotor2Speed * multiplier));
         }
 
 
         @Override
         public boolean isFinished() {
             return (angleMotor2.getPosition().getValueAsDouble() > Math.abs(expectedRotations[level][angleMotor2Index]));
-    }
+        }
     }
 
     public class Limit extends Command {
@@ -67,12 +65,12 @@ public class Angle {
         @Override
         public void execute() {
             angleMotor1.setControl(cycleOutMotor1.withOutput(0.02));
-            angleMotor2.setControl(cycleOutMotor2.withOutput(0.06));
+            angleMotor2.setControl(cycleOutMotor2.withOutput(-0.01));
         }
 
         @Override
         public boolean isFinished() {
-            return Math.abs(angleMotor2.getPosition().getValueAsDouble()) > 1.5;
+            return Math.abs(angleMotor2.getPosition().getValueAsDouble()) > 0.5;
         }
 
         @Override
