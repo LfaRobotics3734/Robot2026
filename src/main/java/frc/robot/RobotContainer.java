@@ -46,6 +46,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.StringPublisher;
 
@@ -81,6 +82,8 @@ public class RobotContainer {
   private DoublePublisher angleMotor1Velocity;
   private DoublePublisher angleMotor2Rotations;
   private DoublePublisher angleMotor2Velocity;
+  private IntegerPublisher angleLevel;
+  private DoublePublisher YStickInput; 
   
 
   public RobotContainer() {
@@ -119,6 +122,8 @@ public class RobotContainer {
     angleMotor1Velocity = shooterAngleTab.getDoubleTopic("Angle Motor1 Velocity").publish();
     angleMotor2Velocity = shooterAngleTab.getDoubleTopic("Angle Motor2 Velocity").publish();
 
+    angleLevel = shooterAngleTab.getIntegerTopic("Angle Level").publish();
+    YStickInput = shooterAngleTab.getDoubleTopic("XboxYStickInput").publish();
 
   }
     //Intake definition
@@ -149,7 +154,7 @@ public class RobotContainer {
       new Limit(climb.getMotor()).schedule();
     }
 
-    //angle.new Limit().schedule();
+    angle.new Limit().schedule();
     
   }
 
@@ -238,9 +243,6 @@ public class RobotContainer {
   }
 
 
-  public void vibrateController() {
-    m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2);
-  }
 
 
   public void updateShuffleBoard() { // Periodic
@@ -253,6 +255,9 @@ public class RobotContainer {
     //
     angleMotor1Rotations.set(shooter.getAngleMotor1().getPosition().getValueAsDouble());
     angleMotor2Rotations.set(shooter.getAngleMotor2().getPosition().getValueAsDouble());
+
+    angleLevel.set(angle.getLevel());
+    YStickInput.set(m_xboxController.getLeftY());
   }
 
   public Command getAutonomousCommand() {

@@ -56,7 +56,7 @@ public class Angle {
 
         @Override
         public boolean isFinished() {
-            return (angleMotor2.getPosition().getValueAsDouble() > Math.abs(expectedRotations[level][angleMotor2Index]));
+            return (Math.abs(angleMotor2.getPosition().getValueAsDouble()) > Math.abs(expectedRotations[level][angleMotor2Index]));
         }
     }
 
