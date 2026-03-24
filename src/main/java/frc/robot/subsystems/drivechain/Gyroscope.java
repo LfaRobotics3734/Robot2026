@@ -11,6 +11,8 @@ import frc.robot.Constants;
 public class Gyroscope {
 
     private final AHRS navX;
+    /** Added to raw NavX+field offset so "zero" does not call navX.reset() (preserves integration). */
+    private Rotation2d yawZeroOffset = Rotation2d.kZero;
 
     public Gyroscope() {
         // Stick with the Studica-specific enum since the constructor requires it
@@ -19,7 +21,8 @@ public class Gyroscope {
         edu.wpi.first.wpilibj.Timer.delay(0.1);
 
         if (navX != null) {
-            zeroYaw();
+            navX.reset();
+            yawZeroOffset = Rotation2d.kZero;
         } else {
             System.out.println("ERROR: NavX could not be initialized!");
         }
@@ -39,18 +42,17 @@ public class Gyroscope {
             System.out.println("Received null angle!");
             return new Rotation2d(0);
         }
-        angle = angle.plus(Rotation2d.fromDegrees(Constants.DriveConstants.GYRO_FIELD_OFFSET_DEG));
-        return angle;
-
-        // return new Rotation2d();
+        Rotation2d rRaw =
+                angle.plus(Rotation2d.fromDegrees(Constants.DriveConstants.GYRO_FIELD_OFFSET_DEG));
+        return rRaw.plus(yawZeroOffset);
     }
 
-    /**
-     * Resets the gyro yaw to 0.
-     * Useful for field-relative driving when you want to reset "Forward".
-     */
+    /** Sets current heading to field 0 without resetting NavX (integration stays continuous). */
     public void zeroYaw() {
-        navX.reset();
+        Rotation2d rRaw =
+                navX.getRotation2d()
+                        .plus(Rotation2d.fromDegrees(Constants.DriveConstants.GYRO_FIELD_OFFSET_DEG));
+        yawZeroOffset = Rotation2d.kZero.minus(rRaw);
     }
 
     /**

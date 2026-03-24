@@ -3,21 +3,23 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 
 public class TeleopDrive extends Command {
-    private static final double kPovOmegaRadPerSec = 1.0;
+    private static final double kPovOmegaRadPerSec = 2.25;
     /** P on heading error (rad) for all POV “snap to heading” directions. */
-    private static final double kPovAlignKp = 2.0;
+    private static final double kPovAlignKp = 4.0;
     private static final double kPovAlignToleranceRad = Math.toRadians(2.0);
 
     private final SwerveDrive swerveDrive;
     private final DoubleSupplier vX, vY, vRot;
     private final IntSupplier povSupplier;
     private static double rotMultiplier;
+
+    /** Field heading captured once when the POV first leaves center; cleared on release. */
+    private Rotation2d povHeadingAtPress = null;
 
     /**
      * @param swerveDrive The subsystem
@@ -61,31 +63,39 @@ public class TeleopDrive extends Command {
         swerveDrive.drive(x * 0.5, y * 0.5, rot, true);
     }
 
-    /** POV snap headings: offset matches post-reset forward (see {@code povTargetHeadingDeg}). */
+    /**
+     * POV up snaps to field 0°. Other directions snap to ±90° / 180° relative to heading stored at
+     * first press (no NavX reset involved).
+     */
     private double povOmegaRadPerSec() {
         int pov = povSupplier.getAsInt();
         if (pov == -1) {
+            povHeadingAtPress = null;
             return 0.0;
         }
-        if (pov == 0) {
-            return omegaTowardHeading(povTargetHeadingDeg(0));
+        if (povHeadingAtPress == null) {
+            povHeadingAtPress = swerveDrive.getFieldHeading();
         }
-        switch (pov) {
-            case 90:
-                return omegaTowardHeading(povTargetHeadingDeg(-90));
-            case 270:
-                return omegaTowardHeading(povTargetHeadingDeg(90));
-            case 180:
-                return omegaTowardHeading(povTargetHeadingDeg(180));
-            default:
-                return 0.0;
-        }
-    }
 
-    /** Absolute field heading for POV: offset (same as post-reset forward) + delta from that forward. */
-    private static Rotation2d povTargetHeadingDeg(double deltaFromForwardDeg) {
-        return Rotation2d.fromDegrees(
-                Constants.DriveConstants.GYRO_FIELD_OFFSET_DEG + deltaFromForwardDeg);
+        Rotation2d target;
+        if (pov == 0) {
+            target = new Rotation2d();
+        } else {
+            switch (pov) {
+                case 90:
+                    target = povHeadingAtPress.plus(Rotation2d.fromDegrees(-90));
+                    break;
+                case 270:
+                    target = povHeadingAtPress.plus(Rotation2d.fromDegrees(90));
+                    break;
+                case 180:
+                    target = povHeadingAtPress.plus(Rotation2d.fromDegrees(180));
+                    break;
+                default:
+                    return 0.0;
+            }
+        }
+        return omegaTowardHeading(target);
     }
 
     private double omegaTowardHeading(Rotation2d target) {
