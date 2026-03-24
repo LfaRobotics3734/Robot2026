@@ -11,7 +11,6 @@ import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
-import frc.robot.commands.RotateHoldLimited;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.Shooter;
 //import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig.ModuleConfig;
@@ -238,22 +237,19 @@ public class RobotContainer {
       new TeleopDrive(
             m_swerveDrive,
             // Axis 0: X (Left & Right)
-            () -> m_driverController.getRawAxis(0), 
+            () -> m_driverController.getRawAxis(0),
             // Axis 1: Y (Forward & Backward)
-            () -> -m_driverController.getRawAxis(1), 
-            // Axis 2: Z Rotation 
-            () -> -m_driverController.getRawAxis(2) 
-        ));
+            () -> -m_driverController.getRawAxis(1),
+            // Axis 2: Z Rotation
+            () -> -m_driverController.getRawAxis(2),
+            () -> m_driverController.getHID().getPOV()));
       m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));  // Sets the gryo heading to point 0 -> The direction its pointing becomes forward essentially 
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
       m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.25)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
 
-      // POV hat: fixed rotations relative to current field heading (WPILib POV: 0=up, 90=right, 180=down, 270=left)
+      // POV hat: up = zero heading; left/right/down spin handled inside TeleopDrive (same frame as drive)
       m_driverController.povUp().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
-      m_driverController.povRight().whileTrue(new RotateHoldLimited(m_swerveDrive, -1.0, 90.0));
-      m_driverController.povLeft().whileTrue(new RotateHoldLimited(m_swerveDrive, 1.0, 90.0));
-      m_driverController.povDown().whileTrue(new RotateHoldLimited(m_swerveDrive, 1.0, 180.0));
   }
 
 
