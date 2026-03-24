@@ -11,7 +11,7 @@ import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
-import frc.robot.commands.RotateRobotRelative;
+import frc.robot.commands.RotateHoldLimited;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.Shooter;
 //import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig.ModuleConfig;
@@ -251,9 +251,9 @@ public class RobotContainer {
 
       // POV hat: fixed rotations relative to current field heading (WPILib POV: 0=up, 90=right, 180=down, 270=left)
       m_driverController.povUp().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
-      m_driverController.povRight().onTrue(new RotateRobotRelative(m_swerveDrive, -90).withTimeout(4));
-      m_driverController.povLeft().onTrue(new RotateRobotRelative(m_swerveDrive, 90).withTimeout(4));
-      m_driverController.povDown().onTrue(new RotateRobotRelative(m_swerveDrive, 180).withTimeout(5));
+      m_driverController.povRight().whileTrue(new RotateHoldLimited(m_swerveDrive, -1.0, 90.0));
+      m_driverController.povLeft().whileTrue(new RotateHoldLimited(m_swerveDrive, 1.0, 90.0));
+      m_driverController.povDown().whileTrue(new RotateHoldLimited(m_swerveDrive, 1.0, 180.0));
   }
 
 
