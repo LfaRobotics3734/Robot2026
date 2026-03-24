@@ -1,5 +1,4 @@
 package frc.robot.subsystems.shooter;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -7,16 +6,17 @@ import edu.wpi.first.math.MathUtil;
 
 
 public class Angle {
-
+    private TalonFX angleMotor1;
+    private TalonFX angleMotor2;
     private double angleMotor1Speed = 0.02;
     private double angleMotor2Speed= 0.01;
     private DutyCycleOut cycleOutMotor1 = new DutyCycleOut(0);
     private DutyCycleOut cycleOutMotor2 = new DutyCycleOut(0);
- 
+
     private double[][] expectedRotations = { {0.0, 0.0}, {0.4, 1.2}, {0.8, 2.4} }; // Low, Medium, High
 
     private int level = 0; // 0: Low (base), 1: Med, 2: High
-    private int angleMotor1Index = 0;      
+    private int angleMotor1Index = 0;
     private int angleMotor2Index = 1;
 
     public Angle(TalonFX motor1, TalonFX motor2) {
@@ -29,7 +29,7 @@ public class Angle {
         level = MathUtil.clamp(level + dir, 0,2); // Sets min of 0, max of 2
 
         this.new AdjustPosition(level - oldLevel).schedule();
-    } 
+    }
 
     public int getLevel() {
         return level;
@@ -40,10 +40,10 @@ public class Angle {
         
         public AdjustPosition(int multi) {
             this.multiplier = multi;
-
+        }
         
         @Override
-        p
+        public void initialize() {
 
         }
 
@@ -54,20 +54,18 @@ public class Angle {
         }
 
 
-        @
-
+        @Override
+        public boolean isFinished() {
+            return (Math.abs(angleMotor2.getPosition().getValueAsDouble()) > Math.abs(expectedRotations[level][angleMotor2Index]));
         }
     }
 
-                    
     public class Limit extends Command {
         
         @Override
         public void execute() {
             angleMotor1.setControl(cycleOutMotor1.withOutput(0.02));
-     * 
             angleMotor2.setControl(cycleOutMotor2.withOutput(-0.01));
-     * 
         }
 
         @Override
@@ -90,8 +88,3 @@ public class Angle {
     }
 
 }
-
-
-     * 
-     * 
-     
