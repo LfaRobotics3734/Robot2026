@@ -11,6 +11,7 @@ import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.TeleopDrive;
+import frc.robot.commands.RotateRobotRelative;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.shooter.Shooter;
 //import swervelib.simulation.ironmaple.simulation.opponentsim.SmartOpponentConfig.ModuleConfig;
@@ -247,6 +248,12 @@ public class RobotContainer {
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
       m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.25)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
+
+      // POV hat: fixed rotations relative to current field heading (WPILib POV: 0=up, 90=right, 180=down, 270=left)
+      m_driverController.povUp().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
+      m_driverController.povRight().onTrue(new RotateRobotRelative(m_swerveDrive, -90).withTimeout(4));
+      m_driverController.povLeft().onTrue(new RotateRobotRelative(m_swerveDrive, 90).withTimeout(4));
+      m_driverController.povDown().onTrue(new RotateRobotRelative(m_swerveDrive, 180).withTimeout(5));
   }
 
 
