@@ -198,6 +198,11 @@ public class SwerveDrive extends SubsystemBase {
         };
     }
 
+    /** NavX cumulative yaw (deg); POV caps use this instead of pose. */
+    public double getYawDegreesCumulative() {
+        return gyro.getYawDegreesCumulative();
+    }
+
     /** Reset the gyro heading (Field Oriented "Zero") */
     public void zeroHeading() {
         gyro.zeroYaw();

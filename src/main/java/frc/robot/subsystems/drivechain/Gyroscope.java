@@ -23,6 +23,11 @@ public class Gyroscope {
         }
     }
 
+    /** NavX cumulative yaw (deg) since reset — monotonic, good for rotation deltas. */
+    public double getYawDegreesCumulative() {
+        return navX.getAngle();
+    }
+
     /**
      * Returns the heading of the robot as a Rotation2d.
      */

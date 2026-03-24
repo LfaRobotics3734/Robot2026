@@ -8,6 +8,8 @@ import java.util.function.IntSupplier;
 
 public class TeleopDrive extends Command {
     private static final double kPovOmegaRadPerSec = 1.0;
+    /** Stop when within this many degrees of cap (avoids never quite reaching target). */
+    private static final double kPovCapToleranceDeg = 1.0;
 
     private final SwerveDrive swerveDrive;
     private final DoubleSupplier vX, vY, vRot;
@@ -15,7 +17,10 @@ public class TeleopDrive extends Command {
     private static double rotMultiplier;
 
     private int lastPov = -1;
-    private double povStartRad = Double.NaN;
+    /** NavX cumulative yaw (deg) at POV press; monotonic so caps work at any starting heading. */
+    private double povStartYawDeg = Double.NaN;
+    /** Latched after reaching cap until POV is released (stops vision/pose threshold flutter). */
+    private boolean povCapped = false;
 
     /**
      * @param swerveDrive The subsystem
@@ -60,32 +65,38 @@ public class TeleopDrive extends Command {
     }
 
     /**
-     * POV spin in field-relative mode: same {@code drive()} call as translation so you can move and
-     * rotate together. 90° left/right use signed delta; 180° uses |delta| so ±π both count as full flip.
+     * POV spin: uses NavX cumulative yaw (not pose) so Limelight fusion cannot toggle the “angle so
+     * far.” Latch freezes ω after cap until the hat is released.
      */
     private double povOmegaRadPerSec() {
         int pov = povSupplier.getAsInt();
         if (pov == -1) {
             lastPov = -1;
-            povStartRad = Double.NaN;
+            povStartYawDeg = Double.NaN;
+            povCapped = false;
             return 0.0;
         }
         if (pov == 0) {
             lastPov = 0;
-            povStartRad = Double.NaN;
+            povStartYawDeg = Double.NaN;
+            povCapped = false;
             return 0.0;
         }
 
         if (pov != lastPov) {
-            povStartRad = Double.NaN;
+            povStartYawDeg = Double.NaN;
+            povCapped = false;
             lastPov = pov;
         }
-        if (Double.isNaN(povStartRad)) {
-            povStartRad = swerveDrive.getPose2d().getRotation().getRadians();
+        if (povCapped) {
+            return 0.0;
+        }
+        if (Double.isNaN(povStartYawDeg)) {
+            povStartYawDeg = swerveDrive.getYawDegreesCumulative();
         }
 
-        double current = swerveDrive.getPose2d().getRotation().getRadians();
-        double delta = MathUtil.angleModulus(current - povStartRad);
+        double currentYawDeg = swerveDrive.getYawDegreesCumulative();
+        double deltaDeg = currentYawDeg - povStartYawDeg;
 
         double maxDeg;
         int directionSign;
@@ -106,17 +117,19 @@ public class TeleopDrive extends Command {
                 return 0.0;
         }
 
-        double maxRad = Math.toRadians(maxDeg);
         if (maxDeg >= 180.0) {
-            if (Math.abs(delta) >= maxRad - 1e-3) {
+            if (Math.abs(deltaDeg) >= maxDeg - kPovCapToleranceDeg) {
+                povCapped = true;
                 return 0.0;
             }
         } else if (directionSign > 0) {
-            if (delta >= maxRad) {
+            if (deltaDeg >= maxDeg - kPovCapToleranceDeg) {
+                povCapped = true;
                 return 0.0;
             }
         } else {
-            if (delta <= -maxRad) {
+            if (deltaDeg <= -(maxDeg - kPovCapToleranceDeg)) {
+                povCapped = true;
                 return 0.0;
             }
         }
