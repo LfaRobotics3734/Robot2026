@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import java.util.function.DoubleSupplier;
@@ -8,22 +9,14 @@ import java.util.function.IntSupplier;
 
 public class TeleopDrive extends Command {
     private static final double kPovOmegaRadPerSec = 1.0;
-    /** Stop when within this many degrees of cap (avoids never quite reaching target). */
-    private static final double kPovCapToleranceDeg = 1.0;
-    /** POV up: align to field heading 0 (rad error → ω). */
-    private static final double kPovUpAlignKp = 2.0;
-    private static final double kPovUpAlignToleranceRad = Math.toRadians(2.0);
+    /** P on heading error (rad) for all POV “snap to heading” directions. */
+    private static final double kPovAlignKp = 2.0;
+    private static final double kPovAlignToleranceRad = Math.toRadians(2.0);
 
     private final SwerveDrive swerveDrive;
     private final DoubleSupplier vX, vY, vRot;
     private final IntSupplier povSupplier;
     private static double rotMultiplier;
-
-    private int lastPov = -1;
-    /** NavX cumulative yaw (deg) at POV press; monotonic so caps work at any starting heading. */
-    private double povStartYawDeg = Double.NaN;
-    /** Latched after reaching cap until POV is released (stops vision/pose threshold flutter). */
-    private boolean povCapped = false;
 
     /**
      * @param swerveDrive The subsystem
@@ -68,88 +61,36 @@ public class TeleopDrive extends Command {
     }
 
     /**
-     * POV spin: uses NavX cumulative yaw (not pose) so Limelight fusion cannot toggle the “angle so
-     * far.” Latch freezes ω after cap until the hat is released.
+     * POV navigates to absolute field headings relative to your 0° (same frame as
+     * {@link SwerveDrive#getFieldHeading()}): up = 0°, left = +90°, right = −90°, down = 180°.
      */
     private double povOmegaRadPerSec() {
         int pov = povSupplier.getAsInt();
         if (pov == -1) {
-            lastPov = -1;
-            povStartYawDeg = Double.NaN;
-            povCapped = false;
             return 0.0;
         }
         if (pov == 0) {
-            lastPov = 0;
-            povStartYawDeg = Double.NaN;
-            povCapped = false;
-            return povUpAlignOmegaRadPerSec();
+            return omegaTowardHeading(new Rotation2d());
         }
-
-        if (pov != lastPov) {
-            povStartYawDeg = Double.NaN;
-            povCapped = false;
-            lastPov = pov;
-        }
-        if (povCapped) {
-            return 0.0;
-        }
-        if (Double.isNaN(povStartYawDeg)) {
-            povStartYawDeg = swerveDrive.getYawDegreesCumulative();
-        }
-
-        double currentYawDeg = swerveDrive.getYawDegreesCumulative();
-        // NavX getAngle(): positive yaw = clockwise. CCW spin decreases this value.
-        double deltaDeg = currentYawDeg - povStartYawDeg;
-
-        double maxDeg;
-        int directionSign;
         switch (pov) {
             case 90:
-                maxDeg = 90.0;
-                directionSign = -1;
-                break;
+                return omegaTowardHeading(Rotation2d.fromDegrees(-90));
             case 270:
-                maxDeg = 90.0;
-                directionSign = 1;
-                break;
+                return omegaTowardHeading(Rotation2d.fromDegrees(90));
             case 180:
-                maxDeg = 180.0;
-                directionSign = 1;
-                break;
+                return omegaTowardHeading(Rotation2d.fromDegrees(180));
             default:
                 return 0.0;
         }
-
-        if (maxDeg >= 180.0) {
-            if (Math.abs(deltaDeg) >= maxDeg - kPovCapToleranceDeg) {
-                povCapped = true;
-                return 0.0;
-            }
-        } else if (directionSign > 0) {
-            // Left (CCW): omega > 0 → NavX angle decreases → delta negative
-            if (deltaDeg <= -(maxDeg - kPovCapToleranceDeg)) {
-                povCapped = true;
-                return 0.0;
-            }
-        } else {
-            // Right (CW): omega < 0 → NavX angle increases → delta positive
-            if (deltaDeg >= maxDeg - kPovCapToleranceDeg) {
-                povCapped = true;
-                return 0.0;
-            }
-        }
-
-        return directionSign * kPovOmegaRadPerSec;
     }
 
-    /** Rotate toward field heading 0 (same frame as {@code SwerveDrive.getFieldHeading()}). */
-    private double povUpAlignOmegaRadPerSec() {
-        double theta = swerveDrive.getFieldHeading().getRadians();
-        double err = MathUtil.angleModulus(-theta);
-        if (Math.abs(err) <= kPovUpAlignToleranceRad) {
+    private double omegaTowardHeading(Rotation2d target) {
+        double err =
+                MathUtil.angleModulus(
+                        target.getRadians() - swerveDrive.getFieldHeading().getRadians());
+        if (Math.abs(err) <= kPovAlignToleranceRad) {
             return 0.0;
         }
-        return MathUtil.clamp(kPovUpAlignKp * err, -kPovOmegaRadPerSec, kPovOmegaRadPerSec);
+        return MathUtil.clamp(kPovAlignKp * err, -kPovOmegaRadPerSec, kPovOmegaRadPerSec);
     }
 }
