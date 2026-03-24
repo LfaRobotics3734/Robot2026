@@ -6,6 +6,8 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
 
+import frc.robot.Constants;
+
 public class Gyroscope {
 
     private final AHRS navX;
@@ -37,7 +39,7 @@ public class Gyroscope {
             System.out.println("Received null angle!");
             return new Rotation2d(0);
         }
-        angle = angle.plus(Rotation2d.fromDegrees(90));
+        angle = angle.plus(Rotation2d.fromDegrees(Constants.DriveConstants.GYRO_FIELD_OFFSET_DEG));
         return angle;
 
         // return new Rotation2d();

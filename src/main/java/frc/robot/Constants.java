@@ -27,6 +27,11 @@ public final class Constants {
         public static final double MAX_AUTO_MODULE_SPEED_METERS_PER_SECOND = 2.4;
     }
 
+    /** Must match {@link frc.robot.subsystems.drivechain.Gyroscope} NavX offset — POV uses this for targets. */
+    public static final class DriveConstants {
+        public static final double GYRO_FIELD_OFFSET_DEG = 90.0;
+    }
+
     public static final class IntakeConstants {
         public static final class MotorID {
             public static final int POSITION_MOTOR = 10;

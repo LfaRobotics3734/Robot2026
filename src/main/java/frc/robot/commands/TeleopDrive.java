@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.drivechain.SwerveDrive;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
@@ -60,28 +61,31 @@ public class TeleopDrive extends Command {
         swerveDrive.drive(x * 0.5, y * 0.5, rot, true);
     }
 
-    /**
-     * POV navigates to absolute field headings relative to your 0° (same frame as
-     * {@link SwerveDrive#getFieldHeading()}): up = 0°, left = +90°, right = −90°, down = 180°.
-     */
+    /** POV snap headings: offset matches post-reset forward (see {@code povTargetHeadingDeg}). */
     private double povOmegaRadPerSec() {
         int pov = povSupplier.getAsInt();
         if (pov == -1) {
             return 0.0;
         }
         if (pov == 0) {
-            return omegaTowardHeading(new Rotation2d());
+            return omegaTowardHeading(povTargetHeadingDeg(0));
         }
         switch (pov) {
             case 90:
-                return omegaTowardHeading(Rotation2d.fromDegrees(-90));
+                return omegaTowardHeading(povTargetHeadingDeg(-90));
             case 270:
-                return omegaTowardHeading(Rotation2d.fromDegrees(90));
+                return omegaTowardHeading(povTargetHeadingDeg(90));
             case 180:
-                return omegaTowardHeading(Rotation2d.fromDegrees(180));
+                return omegaTowardHeading(povTargetHeadingDeg(180));
             default:
                 return 0.0;
         }
+    }
+
+    /** Absolute field heading for POV: offset (same as post-reset forward) + delta from that forward. */
+    private static Rotation2d povTargetHeadingDeg(double deltaFromForwardDeg) {
+        return Rotation2d.fromDegrees(
+                Constants.DriveConstants.GYRO_FIELD_OFFSET_DEG + deltaFromForwardDeg);
     }
 
     private double omegaTowardHeading(Rotation2d target) {
