@@ -203,6 +203,11 @@ public class SwerveDrive extends SubsystemBase {
         return gyro.getYawDegreesCumulative();
     }
 
+    /** Field-relative heading (same frame as {@link #drive(double, double, double, boolean)}). */
+    public Rotation2d getFieldHeading() {
+        return gyro.getAngle();
+    }
+
     /** Reset the gyro heading (Field Oriented "Zero") */
     public void zeroHeading() {
         gyro.zeroYaw();

@@ -10,6 +10,9 @@ public class TeleopDrive extends Command {
     private static final double kPovOmegaRadPerSec = 1.0;
     /** Stop when within this many degrees of cap (avoids never quite reaching target). */
     private static final double kPovCapToleranceDeg = 1.0;
+    /** POV up: align to field heading 0 (rad error → ω). */
+    private static final double kPovUpAlignKp = 2.0;
+    private static final double kPovUpAlignToleranceRad = Math.toRadians(2.0);
 
     private final SwerveDrive swerveDrive;
     private final DoubleSupplier vX, vY, vRot;
@@ -77,14 +80,10 @@ public class TeleopDrive extends Command {
             return 0.0;
         }
         if (pov == 0) {
-            // Rising edge to "up": from released (-1) or any other POV segment — align field "forward"
-            if (lastPov != 0) {
-                swerveDrive.zeroHeading();
-            }
             lastPov = 0;
             povStartYawDeg = Double.NaN;
             povCapped = false;
-            return 0.0;
+            return povUpAlignOmegaRadPerSec();
         }
 
         if (pov != lastPov) {
@@ -142,5 +141,15 @@ public class TeleopDrive extends Command {
         }
 
         return directionSign * kPovOmegaRadPerSec;
+    }
+
+    /** Rotate toward field heading 0 (same frame as {@code SwerveDrive.getFieldHeading()}). */
+    private double povUpAlignOmegaRadPerSec() {
+        double theta = swerveDrive.getFieldHeading().getRadians();
+        double err = MathUtil.angleModulus(-theta);
+        if (Math.abs(err) <= kPovUpAlignToleranceRad) {
+            return 0.0;
+        }
+        return MathUtil.clamp(kPovUpAlignKp * err, -kPovOmegaRadPerSec, kPovOmegaRadPerSec);
     }
 }
