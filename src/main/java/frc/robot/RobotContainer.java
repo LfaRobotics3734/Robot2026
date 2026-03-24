@@ -248,8 +248,7 @@ public class RobotContainer {
       m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.25)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
 
-      // POV hat: up = zero heading; left/right/down spin handled inside TeleopDrive (same frame as drive)
-      m_driverController.povUp().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));
+      // POV hat: up = zero heading (handled in TeleopDrive on POV-up edge); left/right/down in TeleopDrive
   }
 
 

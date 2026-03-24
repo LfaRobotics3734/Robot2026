@@ -77,6 +77,10 @@ public class TeleopDrive extends Command {
             return 0.0;
         }
         if (pov == 0) {
+            // Rising edge to "up": from released (-1) or any other POV segment — align field "forward"
+            if (lastPov != 0) {
+                swerveDrive.zeroHeading();
+            }
             lastPov = 0;
             povStartYawDeg = Double.NaN;
             povCapped = false;
@@ -96,6 +100,7 @@ public class TeleopDrive extends Command {
         }
 
         double currentYawDeg = swerveDrive.getYawDegreesCumulative();
+        // NavX getAngle(): positive yaw = clockwise. CCW spin decreases this value.
         double deltaDeg = currentYawDeg - povStartYawDeg;
 
         double maxDeg;
@@ -123,12 +128,14 @@ public class TeleopDrive extends Command {
                 return 0.0;
             }
         } else if (directionSign > 0) {
-            if (deltaDeg >= maxDeg - kPovCapToleranceDeg) {
+            // Left (CCW): omega > 0 → NavX angle decreases → delta negative
+            if (deltaDeg <= -(maxDeg - kPovCapToleranceDeg)) {
                 povCapped = true;
                 return 0.0;
             }
         } else {
-            if (deltaDeg <= -(maxDeg - kPovCapToleranceDeg)) {
+            // Right (CW): omega < 0 → NavX angle increases → delta positive
+            if (deltaDeg >= maxDeg - kPovCapToleranceDeg) {
                 povCapped = true;
                 return 0.0;
             }
