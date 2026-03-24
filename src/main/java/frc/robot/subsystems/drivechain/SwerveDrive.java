@@ -20,12 +20,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.limelight.LimeLight;
-import frc.robot.Robot;
 import frc.robot.subsystems.limelight.LimeLight;
 
 public class SwerveDrive extends SubsystemBase {
@@ -113,8 +110,8 @@ public class SwerveDrive extends SubsystemBase {
             this::driveRelative, 
             new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in
                 // your Constants class
-                new com.pathplanner.lib.config.PIDConstants(1, 0, 0), // Translation PID constants
-                new PIDConstants(1, 0, 0)
+                new com.pathplanner.lib.config.PIDConstants(Constants.AutoConstants.PATH_TRANSLATION_KP, 0, 0),
+                new PIDConstants(Constants.AutoConstants.PATH_ROTATION_KP, 0, 0)
             ), // Rotation PID constants
             robotConfig, 
             () -> {
@@ -180,6 +177,11 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void setModuleStates(SwerveModuleState[] states) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+            states,
+            Constants.AutoConstants.MAX_AUTO_MODULE_SPEED_METERS_PER_SECOND
+        );
+
         for (int i = 0; i < 4; i++) {
             if (SwerveOn[i]) swerveModules[i].setState(states[i]);
         }
@@ -214,7 +216,8 @@ public class SwerveDrive extends SubsystemBase {
 public void periodic() {
     poseEstimator.update(gyro.getAngle(), getModulePositions());
 
-    if (limeLight.hasPose()) {
+    // Vision can fight PathPlanner during auto if noisy; re-enable after tuning hasPose() + latency.
+    if (!DriverStation.isAutonomous() && limeLight.hasPose()) {
         LimeLight.TimestampPose2d tpose = limeLight.getTimestampedPose();
         poseEstimator.addVisionMeasurement(tpose.getPose2d(), tpose.getTimestamp());
     }

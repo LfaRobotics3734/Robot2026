@@ -17,6 +17,12 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static final class AutoConstants {
+    public static final double PATH_TRANSLATION_KP = 0.9;
+    public static final double PATH_ROTATION_KP = 0.9;
+    public static final double MAX_AUTO_MODULE_SPEED_METERS_PER_SECOND = 2.4;
+  }
+
   public static final class IntakeConstants {
     public static final class MotorID{
       public static final int POSITION_MOTOR = 10;

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -76,14 +77,14 @@ public class SwerveModule {
         double steerTarget = state.angle.getRotations();
         double steerCurrent = currentAngle.getRotations();
         
-        double steerOutput = steerPID.calculate(steerCurrent, steerTarget);
+        double steerOutput = MathUtil.clamp(steerPID.calculate(steerCurrent, steerTarget), -1.0, 1.0);
         
         // Send output to the steer motor
         steerMotor.setControl(steerControl.withOutput(steerOutput));
 
         // 4. Set Drive Output
         // state.speedMetersPerSecond is now optimized (it may be negative)
-        double driveOutput = state.speedMetersPerSecond / SwerveDrive.kMaxSpeed; 
+        double driveOutput = MathUtil.clamp(state.speedMetersPerSecond / SwerveDrive.kMaxSpeed, -1.0, 1.0);
         driveMotor.setControl(driveControl.withOutput(driveOutput));
 
         // Debugging: lowered threshold to see slower rotation speeds
@@ -132,13 +133,12 @@ public class SwerveModule {
         return Rotation2d.fromRotations(correctedRotations);
     }
 
-    //for auton, change once you look through 
+    /** Robot-relative module state for odometry feedback — must use velocity, not position. */
     public SwerveModuleState getState() {
-        //for auton code so far, hardcoded delete when limelight works
-        double motorRotations = driveMotor.getPosition().getValueAsDouble();
+        double motorRps = driveMotor.getVelocity().getValueAsDouble();
         double wheelCircumference = 0.049 * 2 * Math.PI;
         double gearRatio = 6.23;
-        double velocityMetersPerSecond = (motorRotations / gearRatio) * wheelCircumference;
+        double velocityMetersPerSecond = (motorRps / gearRatio) * wheelCircumference;
         return new SwerveModuleState(velocityMetersPerSecond, getAngle());
-}
+    }
 }
