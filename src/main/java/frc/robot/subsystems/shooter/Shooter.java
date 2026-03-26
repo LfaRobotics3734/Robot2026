@@ -118,6 +118,7 @@ public class Shooter {
             isSpinning = true;
             enableShoot(.2, .125);
         } else {
+            isSpinning = true;
             enableShoot(.65 * diddy, .3 * diddy);
         }
 

@@ -29,7 +29,7 @@ public final class Constants {
 
     /** Must match {@link frc.robot.subsystems.drivechain.Gyroscope} NavX offset — POV uses this for targets. */
     public static final class DriveConstants {
-        public static final double GYRO_FIELD_OFFSET_DEG = 90.0;
+        public static final double GYRO_FIELD_OFFSET_DEG = 0.0;
     }
 
     public static final class IntakeConstants {

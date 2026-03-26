@@ -270,10 +270,10 @@ public class RobotContainer {
       m_swerveDrive.setDefaultCommand(
       new TeleopDrive(
             m_swerveDrive,
-            // Axis 0: X (Left & Right)
-            () -> m_driverController.getRawAxis(0),
-            // Axis 1: Y (Forward & Backward)
+            // Axis 1: Y (Forward & Backward) → vX (WPILib +x = forward)
             () -> -m_driverController.getRawAxis(1),
+            // Axis 0: X (Left & Right) → vY (WPILib +y = left)
+            () -> -m_driverController.getRawAxis(0),
             // Axis 2: Z Rotation
             () -> -m_driverController.getRawAxis(2),
             () -> m_driverController.getHID().getPOV()));
