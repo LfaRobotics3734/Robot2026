@@ -18,14 +18,16 @@ public class Limit extends Command {
     private StatusSignal<AngularVelocity> velocitySignal;
     private double current = 0;
     private double velocity = 0;
-    private double speed = -0.25; // pos = up clockwise - neg = down counter
+    private double speed = -0.35; // pos = up clockwise - neg = down counter
+    private double liftingSpeed = -0.9;
+    public static int callCount = 0; // Called once at beginning, second to lift, third to lower (i need to hardcode this bc timecrunch)
+
 
 
     public Limit(TalonFX talonMotor) {
         this.motor = talonMotor;
-
-
-    }
+        Limit.callCount++;
+    }  
 
 
     @Override
@@ -38,8 +40,11 @@ public class Limit extends Command {
 
     @Override
     public void execute() {
-    
-        motor.setControl(cycleOut.withOutput(-speed));
+        if(callCount == 2) {
+            motor.setControl(cycleOut.withOutput(-liftingSpeed));
+        } else {
+            motor.setControl(cycleOut.withOutput(-speed));
+        }
         currentSignal.refresh();
         velocitySignal.refresh();
     }
@@ -52,8 +57,11 @@ public class Limit extends Command {
         // SmartDashboard.putNumber("Climb Motor Rotations", motor.getPosition().getValueAsDouble());
         // SmartDashboard.putNumber("Climb Motor Velocity", velocity);
         // SmartDashboard.putNumber("Climb Motor Current", current);
-
+        if(callCount == 2) {
+            return (Math.abs(current) > 10);
+        } else {
         return (Math.abs(current) > 2.3); // && Math.abs(velocity) < (speed * 90.0); // OKAY SO NORMAL VELOCITY IS THE SPEED * 100
+        }
     }
 
     public void end(boolean interuppted) {

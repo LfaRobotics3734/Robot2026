@@ -173,6 +173,8 @@ public class RobotContainer {
 
     if(!climbAtZero) {
       new Limit(climb.getMotor()).schedule();
+    } else {
+        Limit.callCount++; // We add a call anyways just for consistency 
     }
 
     // angle.new Limit().schedule();
@@ -198,26 +200,31 @@ public class RobotContainer {
       final double stickUp = -0.9;
       final double stickDown = 0.9;
 
-      new Trigger(() -> m_xboxController.getLeftY() <= stickUp && angle.getLevel() != 2).onTrue(new InstantCommand(() -> {
+    //   new Trigger(() -> m_xboxController.getLeftY() <= stickUp && angle.getLevel() != 2).onTrue(new InstantCommand(() -> {
 
-        angle.adjustLevel(1);
-      }));
+    //     angle.adjustLevel(1);
+    //   }));
 
-      // At max (2): rumble when they press up again
-      new Trigger(() -> (m_xboxController.getLeftY() >= stickDown && angle.getLevel() == 0))
-      .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
-      .andThen(new WaitCommand(0.5))
-      .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
+    //   // At max (2): rumble when they press up again
+    //   new Trigger(() -> (m_xboxController.getLeftY() >= stickDown && angle.getLevel() == 0))
+    //   .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
+    //   .andThen(new WaitCommand(0.5))
+    //   .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
 
-      new Trigger(() -> (m_xboxController.getLeftY() <= stickUp && angle.getLevel() == 2)) 
-      .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
-      .andThen(new WaitCommand(0.5))
-      .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
+    //   new Trigger(() -> (m_xboxController.getLeftY() <= stickUp && angle.getLevel() == 2)) 
+    //   .onTrue(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.2))
+    //   .andThen(new WaitCommand(0.5))
+    //   .andThen(new InstantCommand(() -> m_xboxController.setRumble(RumbleType.kLeftRumble, 0.0))));
     
 
-      new Trigger(() -> m_xboxController.getLeftY() >= stickDown && angle.getLevel() > 0).onTrue(new InstantCommand(() -> {
-        angle.adjustLevel(-1);
-      }));
+    //   new Trigger(() -> m_xboxController.getLeftY() >= stickDown && angle.getLevel() > 0).onTrue(new InstantCommand(() -> {
+    //     angle.adjustLevel(-1);
+    //   }));
+
+
+    new Trigger(() -> m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.moveAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
+    new Trigger(() -> m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.moveAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
+    
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
       m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1)));
@@ -317,6 +324,13 @@ public class RobotContainer {
       feeder.configureFeedIdle(0);
     }));
 
+    NamedCommands.registerCommand("climbMax", new InstantCommand(() -> {
+        new Max(climb.getMotor());
+      }));
+
+    NamedCommands.registerCommand("climbLift", new InstantCommand(() -> {
+        new Limit(climb.getMotor());
+      }));
 
   }
 }
