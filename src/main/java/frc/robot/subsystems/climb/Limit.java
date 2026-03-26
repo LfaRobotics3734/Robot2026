@@ -22,12 +22,17 @@ public class Limit extends Command {
     private double liftingSpeed = -0.9;
     public static int callCount = 0; // Called once at beginning, second to lift, third to lower (i need to hardcode this bc timecrunch)
 
-
+    
 
     public Limit(TalonFX talonMotor) {
         this.motor = talonMotor;
         Limit.callCount++;
     }  
+
+    public static void resetVariables() {
+        Limit.callCount = 0;
+    }
+
 
 
     @Override

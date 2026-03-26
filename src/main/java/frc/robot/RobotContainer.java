@@ -182,6 +182,10 @@ public class RobotContainer {
   }
 
 
+  public void resetVariables() {
+    Limit.resetVariables();
+  }
+
 
   private void configureControllerBindings() {
 
@@ -298,7 +302,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     String autoPath = "trenchShoot";
-
+    Limit.callCount++; // Just to say that next call it needs to lift
     Command autoCommand = new PathPlannerAuto(autoPath);
 
     Command finalCommand = new SequentialCommandGroup(autoCommand);
