@@ -279,7 +279,7 @@ public class RobotContainer {
             () -> m_driverController.getHID().getPOV()));
       // m_driverController.trigger()
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
-      m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.25)))  
+      m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.45)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
 
 
