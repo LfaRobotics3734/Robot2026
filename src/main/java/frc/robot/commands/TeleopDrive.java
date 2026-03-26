@@ -64,8 +64,8 @@ public class TeleopDrive extends Command {
     }
 
     /**
-     * POV up snaps to field 0°. Other directions snap to ±90° / 180° relative to heading stored at
-     * first press (no NavX reset involved).
+     * All POV directions snap relative to the heading stored at first press:
+     * up = back to original, right = −90°, left = +90°, down = 180°.
      */
     private double povOmegaRadPerSec() {
         int pov = povSupplier.getAsInt();
@@ -78,22 +78,21 @@ public class TeleopDrive extends Command {
         }
 
         Rotation2d target;
-        if (pov == 0) {
-            target = new Rotation2d();
-        } else {
-            switch (pov) {
-                case 90:
-                    target = povHeadingAtPress.plus(Rotation2d.fromDegrees(-90));
-                    break;
-                case 270:
-                    target = povHeadingAtPress.plus(Rotation2d.fromDegrees(90));
-                    break;
-                case 180:
-                    target = povHeadingAtPress.plus(Rotation2d.fromDegrees(180));
-                    break;
-                default:
-                    return 0.0;
-            }
+        switch (pov) {
+            case 0:
+                target = povHeadingAtPress;
+                break;
+            case 90:
+                target = povHeadingAtPress.plus(Rotation2d.fromDegrees(-90));
+                break;
+            case 270:
+                target = povHeadingAtPress.plus(Rotation2d.fromDegrees(90));
+                break;
+            case 180:
+                target = povHeadingAtPress.plus(Rotation2d.fromDegrees(180));
+                break;
+            default:
+                return 0.0;
         }
         return omegaTowardHeading(target);
     }

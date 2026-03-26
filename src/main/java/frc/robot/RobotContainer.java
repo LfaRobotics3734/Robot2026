@@ -228,14 +228,14 @@ public class RobotContainer {
     //   }));
 
 
-    new Trigger(() -> m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.moveAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
-    new Trigger(() -> m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.moveAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
+    new Trigger(() -> -m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.moveAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
+    new Trigger(() -> -m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.moveAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
     
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
-      m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1)));
+      m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1, false)));
       m_xboxController.b().onTrue(new InstantCommand(() -> intake.configureSpin(1)));
-    
+    m_xboxController.rightBumper().onTrue(new InstantCommand(() -> shooter.configureShoot(1, true)));
       // turns on indexer and feed at the same time
       m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> {
         feeder.configureFeedIdle(1);
@@ -246,7 +246,7 @@ public class RobotContainer {
       m_xboxController.x().onTrue(new InstantCommand(()->{
         feeder.configureFeedIdle(-1);
         intake.configureSpin(-1);
-        shooter.configureShoot(-1);
+        shooter.configureShoot(-1, false);
         
       }));
 
@@ -326,12 +326,12 @@ public class RobotContainer {
     }));
 
     NamedCommands.registerCommand("startShooter", new InstantCommand(() -> {
-      shooter.configureShoot(1);
+      shooter.configureShoot(1, false);
     }));
 
     NamedCommands.registerCommand("halt", new InstantCommand(() -> {
-      shooter.configureShoot(0);
-      feeder.configureFeedIdle(0);
+      shooter.configureShoot(1, false);
+      feeder.configureFeedIdle(1);
     }));
 
     NamedCommands.registerCommand("climbMax", new InstantCommand(() -> {

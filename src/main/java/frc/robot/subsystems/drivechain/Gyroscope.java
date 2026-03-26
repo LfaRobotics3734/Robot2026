@@ -22,7 +22,7 @@ public class Gyroscope {
 
         if (navX != null) {
             navX.reset();
-            yawZeroOffset = Rotation2d.kZero;
+            zeroYaw();
         } else {
             System.out.println("ERROR: NavX could not be initialized!");
         }

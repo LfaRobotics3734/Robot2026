@@ -83,7 +83,7 @@ public class Shooter {
     public void moveAngle(double speed) {
         speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
         if(getAngle(angleMotor1) < 0.95 && getAngle(angleMotor1) > -0.007) { // IF we havent hit max rotations
-            angleMotor1.setControl(angleCycleOut.withOutput(speed * 0.5));
+            angleMotor1.setControl(angleCycleOut.withOutput(speed * 1.5));
         }
         if(getAngle(angleMotor2) > -2 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
             angleMotor2.setControl(angleCycleOut.withOutput(-speed * 2));
@@ -110,16 +110,19 @@ public class Shooter {
 
 
     // Acts as a switch (spin is either on or off) 
-    public void configureShoot(int diddy) {
+    public void configureShoot(int diddy, boolean light) {
         if(isSpinning) {
             isSpinning = false;
             disableShoot();
-        } else {
+        } else if (light) {
             isSpinning = true;
-            enableShoot(.8 * diddy, .4 * diddy);
+            enableShoot(.2, .125);
+        } else {
+            enableShoot(.65 * diddy, .3 * diddy);
         }
 
     }
+
 
 
 //Enable and disable spin on the shooting motors
@@ -136,6 +139,7 @@ public class Shooter {
         primaryMotor.setControl(shooterCycleOut.withOutput(0));
         secondaryMotor.setControl(shooterCycleOut.withOutput(0));
     }
+    
 
 
 }
