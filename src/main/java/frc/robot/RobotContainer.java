@@ -43,12 +43,17 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 
 
@@ -101,9 +106,7 @@ public class RobotContainer {
     registerCommands();
 
     setupShuffleBoard();
-
-
-    
+    setupUsbCamera();
   }
 
 
@@ -126,7 +129,24 @@ public class RobotContainer {
     YStickInput = shooterAngleTab.getDoubleTopic("XboxYStickInput").publish();
 
   }
-    //Intake definition
+
+  /** First USB camera on RoboRIO; Shuffleboard.getTab creates the tab if missing. */
+  private void setupUsbCamera() {
+    if (!RobotBase.isReal()) {
+      return;
+    }
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(640, 480);
+    camera.setFPS(24);
+
+    Shuffleboard.getTab("Driver")
+        .add("USB Camera", camera)
+        .withWidget(BuiltInWidgets.kCameraStream)
+        .withPosition(0, 0)
+        .withSize(5, 4);
+  }
+
+  //Intake definition
   private void setupIntake() {
     intake = new Intake(IntakeConstants.MotorID.SPIN_MOTOR, IntakeConstants.MotorID.POSITION_MOTOR);
   }
