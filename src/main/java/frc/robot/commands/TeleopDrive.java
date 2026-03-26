@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drivechain.SwerveDrive;
@@ -8,25 +9,24 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 
 public class TeleopDrive extends Command {
-    private static final double kPovOmegaRadPerSec = 2.25;
-    /** P on heading error (rad) for all POV “snap to heading” directions. */
-    private static final double kPovAlignKp = 4.0;
-    private static final double kPovAlignToleranceRad = Math.toRadians(2.0);
+
+    private static final double kSnapMaxOmega = 3.0;
+    private static final double kSnapKp = 4.0;
+    private static final double kSnapKd = 0.08;
 
     private final SwerveDrive swerveDrive;
     private final DoubleSupplier vX, vY, vRot;
     private final IntSupplier povSupplier;
     private static double rotMultiplier;
 
-    /** Field heading captured once when the POV first leaves center; cleared on release. */
-    private Rotation2d povHeadingAtPress = null;
+    private final PIDController snapPid;
 
     /**
      * @param swerveDrive The subsystem
-     * @param vX Supplier for forward/backwar;d (e.g., joystick.getLeftY)
-     * @param vY Supplier for left/right (e.g., joystick.getLeftX)
-     * @param vRot Supplier for rotation (e.g., joystick.getRightX)
-     * @param povSupplier POV hat angle in degrees, or -1 if none (e.g. joystick.getHID().getPOV())
+     * @param vX Supplier for forward/backward (e.g., joystick axis 1, negated)
+     * @param vY Supplier for left/right (e.g., joystick axis 0, negated)
+     * @param vRot Supplier for rotation (e.g., joystick axis 2)
+     * @param povSupplier POV hat angle in degrees, or -1 if released
      */
     public TeleopDrive(
             SwerveDrive swerveDrive,
@@ -41,6 +41,10 @@ public class TeleopDrive extends Command {
         this.povSupplier = povSupplier;
         addRequirements(swerveDrive);
         rotMultiplier = 0.0;
+
+        snapPid = new PIDController(kSnapKp, 0.0, kSnapKd);
+        snapPid.enableContinuousInput(-Math.PI, Math.PI);
+        snapPid.setTolerance(Math.toRadians(2.0));
     }
 
     public static void SetRotMultiplier(double rotMulti) {
@@ -49,61 +53,41 @@ public class TeleopDrive extends Command {
 
     @Override
     public void execute() {
-        // 1. Apply Deadband (ignores small inputs under 10%)
-        // 2. Scale by Max Speed
         double x = MathUtil.applyDeadband(vX.getAsDouble(), 0.075) * SwerveDrive.kMaxSpeed;
         double y = MathUtil.applyDeadband(vY.getAsDouble(), 0.075) * SwerveDrive.kMaxSpeed;
 
-        // Rotation usually feels better a bit slower (e.g., 2 rotations per second)
-        double rot = MathUtil.applyDeadband(vRot.getAsDouble(), 0.3) * (Math.PI * 2);
-        rot *= rotMultiplier;
-        rot += povOmegaRadPerSec();
+        double rot;
+        Rotation2d povTarget = getPovTarget();
 
-        // 3. Send to Subsystem (true = Field Relative)
+        if (povTarget != null) {
+            snapPid.setSetpoint(povTarget.getRadians());
+            double currentRad = swerveDrive.getFieldHeading().getRadians();
+            rot = MathUtil.clamp(snapPid.calculate(currentRad), -kSnapMaxOmega, kSnapMaxOmega);
+        } else {
+            rot = MathUtil.applyDeadband(vRot.getAsDouble(), 0.3) * (Math.PI * 2);
+            rot *= rotMultiplier;
+            snapPid.reset();
+        }
+
         swerveDrive.drive(x * 0.5, y * 0.5, rot, true);
     }
 
     /**
-     * All POV directions snap relative to the heading stored at first press:
-     * up = back to original, right = −90°, left = +90°, down = 180°.
+     * Maps the POV hat to fixed field headings (relative to the zeroed heading).
+     * Returns null when no cardinal direction is pressed.
+     *
+     *   Up    (0)   → 0°    forward
+     *   Right (90)  → −90°  clockwise
+     *   Left  (270) → +90°  counter-clockwise
+     *   Down  (180) → 180°  about-face
      */
-    private double povOmegaRadPerSec() {
-        int pov = povSupplier.getAsInt();
-        if (pov == -1) {
-            povHeadingAtPress = null;
-            return 0.0;
+    private Rotation2d getPovTarget() {
+        switch (povSupplier.getAsInt()) {
+            case 0:   return Rotation2d.fromDegrees(0);
+            case 90:  return Rotation2d.fromDegrees(-90);
+            case 270: return Rotation2d.fromDegrees(90);
+            case 180: return Rotation2d.fromDegrees(180);
+            default:  return null;
         }
-        if (povHeadingAtPress == null) {
-            povHeadingAtPress = swerveDrive.getFieldHeading();
-        }
-
-        Rotation2d target;
-        switch (pov) {
-            case 0:
-                target = povHeadingAtPress;
-                break;
-            case 90:
-                target = povHeadingAtPress.plus(Rotation2d.fromDegrees(-90));
-                break;
-            case 270:
-                target = povHeadingAtPress.plus(Rotation2d.fromDegrees(90));
-                break;
-            case 180:
-                target = povHeadingAtPress.plus(Rotation2d.fromDegrees(180));
-                break;
-            default:
-                return 0.0;
-        }
-        return omegaTowardHeading(target);
-    }
-
-    private double omegaTowardHeading(Rotation2d target) {
-        double err =
-                MathUtil.angleModulus(
-                        target.getRadians() - swerveDrive.getFieldHeading().getRadians());
-        if (Math.abs(err) <= kPovAlignToleranceRad) {
-            return 0.0;
-        }
-        return MathUtil.clamp(kPovAlignKp * err, -kPovOmegaRadPerSec, kPovOmegaRadPerSec);
     }
 }
