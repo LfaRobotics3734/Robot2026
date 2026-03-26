@@ -89,7 +89,8 @@ public class RobotContainer {
   private DoublePublisher angleMotor2Velocity;
   private IntegerPublisher angleLevel;
   private DoublePublisher YStickInput; 
-  
+  private IntegerPublisher yButtonCount; 
+  private int yCount = 0;
 
   public RobotContainer() {
 
@@ -117,6 +118,7 @@ public class RobotContainer {
     climbRotations = climbTab.getDoubleTopic("Climb Rotations").publish();
     climbVelocity = climbTab.getDoubleTopic("Climb Velocity").publish();
     climbAtZero = climbTab.getBooleanTopic("At Zero").publish();
+    yButtonCount = climbTab.getIntegerTopic("Times Y Pressed").publish();
 
     shooterAngleTab = networkInstance.getTable("ShooterAngle");
     angleMotor1Rotations = shooterAngleTab.getDoubleTopic("Angle Motor1 Rotations").publish();
@@ -127,7 +129,7 @@ public class RobotContainer {
 
     angleLevel = shooterAngleTab.getIntegerTopic("Angle Level").publish();
     YStickInput = shooterAngleTab.getDoubleTopic("XboxYStickInput").publish();
-
+    
   }
 
   /** First USB camera on RoboRIO; Shuffleboard.getTab creates the tab if missing. */
@@ -170,7 +172,7 @@ public class RobotContainer {
 
   public void startTask () {
     boolean climbAtZero = Preferences.getBoolean("ClimbAtZero", false);
-
+    // climbAtZero = false;
     if(!climbAtZero) {
       new Limit(climb.getMotor()).schedule();
     } else {
@@ -252,6 +254,7 @@ public class RobotContainer {
 
       m_xboxController.y().onTrue(new InstantCommand(() -> {
         System.out.println("Pressed Y with goingup as: " + goingUp);
+        yCount++;
         if(goingUp) {
           new Limit(climb.getMotor()).schedule();
           goingUp = false;
@@ -274,11 +277,13 @@ public class RobotContainer {
             // Axis 2: Z Rotation
             () -> -m_driverController.getRawAxis(2),
             () -> m_driverController.getHID().getPOV()));
-      m_driverController.trigger().onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));  // Sets the gryo heading to point 0 -> The direction its pointing becomes forward essentially 
+      // m_driverController.trigger()
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
       m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.25)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
 
+
+      m_driverController.button(12).onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));  // Sets the gryo heading to point 0 -> The direction its pointing becomes forward essentially 
       // POV hat: up = zero heading (handled in TeleopDrive on POV-up edge); left/right/down in TeleopDrive
   }
 
@@ -292,6 +297,7 @@ public class RobotContainer {
     climbVelocity.set(climb.getVelocity());
     climbRotations.set(climb.getMotor().getPosition().getValueAsDouble());
     climbAtZero.set(Preferences.getBoolean("ClimbAtZero", false));
+    yButtonCount.set(yCount);
     //Shooter Angle
     angleMotor1Rotations.set(shooter.getAngleMotor1().getPosition().getValueAsDouble());
     angleMotor2Rotations.set(shooter.getAngleMotor2().getPosition().getValueAsDouble());
