@@ -131,7 +131,7 @@ public class Shooter {
             enableShoot(.4, .295);
         } else {
             isSpinning = true;
-            enableShoot(.65 * diddy, .3 * diddy);
+            enableShoot(.7 * diddy, .3 * diddy);
         }
 
     }

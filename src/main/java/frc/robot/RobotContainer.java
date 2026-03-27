@@ -338,7 +338,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("halt", new InstantCommand(() -> {
       shooter.configureShoot(1, false);
       feeder.configureFeedIdle(1);
-      intake.configureSpin(1);
+      //intake.configureSpin(1);
     }));
 
     NamedCommands.registerCommand("climbMax", new InstantCommand(() -> {

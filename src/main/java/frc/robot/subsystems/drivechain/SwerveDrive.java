@@ -42,7 +42,7 @@ public class SwerveDrive extends SubsystemBase {
     private Rotation2d currentHeading;
     
     // Define a max speed for the robot (m/s). Kraken X60s are fast!, check if we have to swith
-    public static final double kMaxSpeed = 4.353; 
+    public static final double kMaxSpeed = 3.353; 
 
     public SwerveDrive() {
         gyro = new Gyroscope();
