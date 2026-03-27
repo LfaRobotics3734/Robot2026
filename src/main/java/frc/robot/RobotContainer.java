@@ -244,7 +244,7 @@ public class RobotContainer {
     
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
-      m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1, false)));
+      m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureMeasuredShoot()));
       m_xboxController.b().onTrue(new InstantCommand(() -> intake.configureSpin(1)));
     m_xboxController.rightBumper().onTrue(new InstantCommand(() -> shooter.configureShoot(1, true)));
     m_xboxController.rightBumper().onTrue(new InstantCommand(() -> feeder.configureFeedIdle(1)));

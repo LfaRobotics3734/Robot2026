@@ -26,7 +26,7 @@ public class Shooter {
     private final DutyCycleOut angleCycleOut = new DutyCycleOut(0);
     private boolean isSpinning = false;
     public int targetAngle = 0;
-
+    static boolean awaitingEnd = false;
 
     private StatusSignal<Current> primaryCurrent;
     private StatusSignal<Current> secondaryCurrent;
@@ -34,7 +34,6 @@ public class Shooter {
     //Motor variables 
     public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID) {
         //H: shooter definition
-        
         primaryMotor = new TalonFX(primaryMotorID);
         secondaryMotor = new TalonFX(secondaryMotorID);
 
@@ -127,6 +126,17 @@ public class Shooter {
     }
 
 
+    public void configureMeasuredShoot() {
+        if(isSpinning) {
+            Shooter.awaitingEnd = true;
+        } else {
+            Shooter.awaitingEnd = false;
+            isSpinning = true;
+            this. new MeasuredShoot().schedule();
+
+        }
+    }
+
     // Acts as a switch (spin is either on or off) 
     public void configureShoot(int diddy, boolean light) {
         if(isSpinning) {
@@ -137,7 +147,7 @@ public class Shooter {
             enableShoot(.5, .295);
         } else {
             isSpinning = true;
-            enableShoot(.725 * diddy, .35 * diddy);
+            enableShoot(.725 * diddy, .65 * diddy);
         }
 
     }
@@ -156,7 +166,7 @@ public class Shooter {
     }
     public class MeasuredShoot extends Command{
         public MeasuredShoot() {
-
+            
         }
 
         @Override
@@ -165,17 +175,18 @@ public class Shooter {
         }
         @Override
         public void execute() {
+            primaryCurrent.refresh();
+            secondaryCurrent.refresh();
 
+            primaryMotor.setControl(shooterCycleOut.withOutput(MathUtil.clamp(-.525 * (primaryCurrent.getValueAsDouble() * 0.00475), -.98, 0)));
+            secondaryMotor.setControl(shooterCycleOut.withOutput(MathUtil.clamp((0.2 * secondaryCurrent.getValueAsDouble() * 0.016),0,.98)));
         }
 
         public boolean isFinished() {
-            primaryCurrent.refresh();
-            secondaryCurrent.refresh();
-            
-            return true;
+            return awaitingEnd;
         }
         public void end(boolean interuppted) {
-
+            
         }
     }
    
