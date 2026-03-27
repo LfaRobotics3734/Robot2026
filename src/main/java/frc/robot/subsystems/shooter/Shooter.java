@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -152,6 +153,30 @@ public class Shooter {
             primaryMotor.setControl(shooterCycleOut.withOutput(-shooter));
             secondaryMotor.setControl(shooterCycleOut.withOutput(shooter));
         
+    }
+    public class MeasuredShoot extends Command{
+        public MeasuredShoot() {
+
+        }
+
+        @Override
+        public void initialize() {
+
+        }
+        @Override
+        public void execute() {
+
+        }
+
+        public boolean isFinished() {
+            primaryCurrent.refresh();
+            secondaryCurrent.refresh();
+            
+            return true;
+        }
+        public void end(boolean interuppted) {
+
+        }
     }
    
 

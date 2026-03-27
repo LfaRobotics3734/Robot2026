@@ -76,7 +76,7 @@ public class Intake {
     }
 
    public void enableSpin(int reverse) {
-    spinMotor.setControl(spinCycleOut.withOutput(-0.75 * reverse));
+    spinMotor.setControl(spinCycleOut.withOutput(-0.55 * reverse));
    }
 
    public void disableSpin() {

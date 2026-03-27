@@ -22,8 +22,8 @@ public final class Constants {
     }
 
     public static final class AutoConstants {
-        public static final double PATH_TRANSLATION_KP = 1.4;
-        public static final double PATH_ROTATION_KP = 1.4;
+        public static final double PATH_TRANSLATION_KP = 1.2;
+        public static final double PATH_ROTATION_KP = 1.2;
         public static final double MAX_AUTO_MODULE_SPEED_METERS_PER_SECOND = 2.4;
     }
 

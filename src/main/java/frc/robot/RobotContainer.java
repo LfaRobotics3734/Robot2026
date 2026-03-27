@@ -289,7 +289,7 @@ public class RobotContainer {
             // Axis 2: Z Rotation
             () -> -m_driverController.getRawAxis(2),
             () -> m_driverController.getHID().getPOV()));
-      m_driverController.trigger().onTrue(new InstantCommand(() -> TeleopDrive.ToggleHeadingInversion()));
+      //m_driverController.trigger().onTrue(new InstantCommand(() -> TeleopDrive.ToggleHeadingInversion()));
 
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
       m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.45)))  
@@ -324,7 +324,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    String autoPath = "RightToBackRightCenter";
+    String autoPath = "leftDepot";
     Limit.callCount++; // Just to say that next call it needs to lift
     Command autoCommand = new PathPlannerAuto(autoPath);
 

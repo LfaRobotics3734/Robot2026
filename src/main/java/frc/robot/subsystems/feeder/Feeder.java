@@ -35,8 +35,8 @@ public class Feeder {
     }
 
    public void enableSpin(int reverse) {
-    feederMotor.setControl(feederCycleOut.withOutput(-0.3 * reverse));
-    idlerMotor.setControl(indexerCycleOut.withOutput(0.6 * reverse));
+    feederMotor.setControl(feederCycleOut.withOutput(-0.25 * reverse));
+    idlerMotor.setControl(indexerCycleOut.withOutput(0.5 * reverse));
    }
 
    public void disableSpin() {
