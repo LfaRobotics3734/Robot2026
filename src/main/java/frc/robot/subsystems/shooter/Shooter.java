@@ -128,7 +128,7 @@ public class Shooter {
             disableShoot();
         } else if (light) {
             isSpinning = true;
-            enableShoot(.4, .295);
+            enableShoot(.45, .295);
         } else {
             isSpinning = true;
             enableShoot(.7 * diddy, .3 * diddy);

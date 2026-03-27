@@ -308,7 +308,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    String autoPath = "leftDepot";
+    String autoPath = "RightToBackRightCenter";
     Limit.callCount++; // Just to say that next call it needs to lift
     Command autoCommand = new PathPlannerAuto(autoPath);
 
