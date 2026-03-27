@@ -18,6 +18,7 @@ public class TeleopDrive extends Command {
     private final DoubleSupplier vX, vY, vRot;
     private final IntSupplier povSupplier;
     private static double rotMultiplier;
+    private static boolean headingInverted = false;
 
     private final PIDController snapPid;
 
@@ -51,15 +52,31 @@ public class TeleopDrive extends Command {
         rotMultiplier = rotMulti;
     }
 
+    public static void ToggleHeadingInversion() {
+        headingInverted = !headingInverted;
+    }
+
+    public static boolean IsHeadingInverted() {
+        return headingInverted;
+    }
+
     @Override
     public void execute() {
         double x = MathUtil.applyDeadband(vX.getAsDouble(), 0.075) * SwerveDrive.kMaxSpeed;
         double y = MathUtil.applyDeadband(vY.getAsDouble(), 0.075) * SwerveDrive.kMaxSpeed;
 
+        if (headingInverted) {
+            x = -x;
+            y = -y;
+        }
+
         double rot;
         Rotation2d povTarget = getPovTarget();
 
         if (povTarget != null) {
+            if (headingInverted) {
+                povTarget = povTarget.plus(Rotation2d.fromDegrees(270));
+            }
             snapPid.setSetpoint(povTarget.getRadians());
             double currentRad = swerveDrive.getFieldHeading().getRadians();
             rot = MathUtil.clamp(snapPid.calculate(currentRad), -kSnapMaxOmega, kSnapMaxOmega);

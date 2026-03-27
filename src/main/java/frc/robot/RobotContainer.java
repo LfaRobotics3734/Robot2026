@@ -90,6 +90,12 @@ public class RobotContainer {
   private IntegerPublisher angleLevel;
   private DoublePublisher YStickInput; 
   private IntegerPublisher yButtonCount; 
+  private NetworkTable ShooterTab;
+  private DoublePublisher shooterCurrent1;
+  private DoublePublisher shooterCurrent2;
+
+
+
   private int yCount = 0;
 
   public RobotContainer() {
@@ -129,6 +135,11 @@ public class RobotContainer {
 
     angleLevel = shooterAngleTab.getIntegerTopic("Angle Level").publish();
     YStickInput = shooterAngleTab.getDoubleTopic("XboxYStickInput").publish();
+
+    // Shooter
+    ShooterTab = networkInstance.getTable("Shooter");
+    shooterCurrent1 = ShooterTab.getDoubleTopic("Primary Motor Current: ").publish();
+    shooterCurrent2 = ShooterTab.getDoubleTopic("Secondary Motor Current: ").publish();
     
   }
 
@@ -238,9 +249,9 @@ public class RobotContainer {
     m_xboxController.rightBumper().onTrue(new InstantCommand(() -> shooter.configureShoot(1, true)));
     m_xboxController.rightBumper().onTrue(new InstantCommand(() -> feeder.configureFeedIdle(1)));
       // turns on indexer and feed at the same time
-      m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> {
-        feeder.configureFeedIdle(1);
-      }));
+      m_xboxController.rightTrigger().whileTrue(Commands.run(() -> {
+        feeder.enableSpin(1);
+      }).finallyDo(() -> feeder.disableSpin()));
 
 
       // safety that runs everything backward
@@ -278,7 +289,8 @@ public class RobotContainer {
             // Axis 2: Z Rotation
             () -> -m_driverController.getRawAxis(2),
             () -> m_driverController.getHID().getPOV()));
-      // m_driverController.trigger()
+      m_driverController.trigger().onTrue(new InstantCommand(() -> TeleopDrive.ToggleHeadingInversion()));
+
       // While the side button is pressed we allow rotations. Otherwise, the joystick will pick up too much Z rot input for basic motions (such as a linear forward motion)
       m_driverController.button(2).onTrue(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(.45)))  
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
@@ -304,6 +316,10 @@ public class RobotContainer {
     angleMotor2Rotations.set(shooter.getAngleMotor2().getPosition().getValueAsDouble());
     angleLevel.set(angle.getLevel());
     YStickInput.set(m_xboxController.getLeftY());
+
+    // Shooter Current
+    shooterCurrent1.set(shooter.getPrimaryMotorCurrent());
+    shooterCurrent2.set(shooter.getSecondaryMotorCurrent());
   }
 
   public Command getAutonomousCommand() {

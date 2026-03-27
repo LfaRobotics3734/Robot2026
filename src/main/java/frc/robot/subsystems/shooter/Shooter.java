@@ -3,9 +3,10 @@ package frc.robot.subsystems.shooter;
 import frc.robot.Constants.ShooterConstants;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -25,6 +26,9 @@ public class Shooter {
     private boolean isSpinning = false;
     public int targetAngle = 0;
 
+
+    private StatusSignal<Current> primaryCurrent;
+    private StatusSignal<Current> secondaryCurrent;
     
     //Motor variables 
     public Shooter(int primaryMotorID, int secondaryMotorID, int angleMotor1ID, int angleMotor2ID) {
@@ -51,7 +55,8 @@ public class Shooter {
         angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -1.0; // Define peak
         
-
+        primaryCurrent = primaryMotor.getStatorCurrent();
+        secondaryCurrent = secondaryMotor.getStatorCurrent();
         //H: Angle motors lock
         angleMotor1.getConfigurator().apply(angleConfig1);
         angleMotor2.getConfigurator().apply(angleConfig2);
@@ -91,10 +96,10 @@ public class Shooter {
         }
 
         if (getAngle(angleMotor1) > .85 || getAngle(angleMotor1) < 0) {
-            controller.setRumble(RumbleType.kBothRumble,1);
+            // controller.setRumble(RumbleType.kBothRumble,1);
         } 
         if (getAngle(angleMotor1) <= .85 && getAngle(angleMotor1) >= 0) {
-            controller.setRumble(RumbleType.kBothRumble, 0);
+            // controller.setRumble(RumbleType.kBothRumble, 0);
         }
 
         if(getAngle(angleMotor2) > -1.05 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
@@ -128,10 +133,10 @@ public class Shooter {
             disableShoot();
         } else if (light) {
             isSpinning = true;
-            enableShoot(.45, .295);
+            enableShoot(.5, .295);
         } else {
             isSpinning = true;
-            enableShoot(.7 * diddy, .3 * diddy);
+            enableShoot(.725 * diddy, .35 * diddy);
         }
 
     }
@@ -141,12 +146,25 @@ public class Shooter {
 //Enable and disable spin on the shooting motors
 //H: I disabled the for loops since there needs to be OPPOSITE spin on shooter motors
     public void enableShoot(double shooter, double idler) {
-        
+
+
+
             primaryMotor.setControl(shooterCycleOut.withOutput(-shooter));
             secondaryMotor.setControl(shooterCycleOut.withOutput(shooter));
         
     }
    
+
+    public double getPrimaryMotorCurrent() {
+        primaryCurrent.refresh();
+        return primaryCurrent.getValueAsDouble();
+    }
+
+
+    public double getSecondaryMotorCurrent() {
+        secondaryCurrent.refresh();
+        return secondaryCurrent.getValueAsDouble();
+    }
 
     public void disableShoot() {
         primaryMotor.setControl(shooterCycleOut.withOutput(0));
