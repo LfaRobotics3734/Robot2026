@@ -7,8 +7,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -37,7 +40,7 @@ public class Shooter {
         TalonFXConfiguration angleConfig1 = new TalonFXConfiguration();
         angleConfig1.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         angleConfig1.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        angleConfig1.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.95;
+        angleConfig1.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.95; // max height in rot
         angleConfig1.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         angleConfig1.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
@@ -46,7 +49,7 @@ public class Shooter {
         angleConfig2.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleConfig2.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.0;
         angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -4.0; // Define peak
+        angleConfig2.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -1.0; // Define peak
         
 
         //H: Angle motors lock
@@ -80,12 +83,21 @@ public class Shooter {
     }
 
 
-    public void moveAngle(double speed) {
+    public void moveAngle(double speed, CommandXboxController controller) {
         speed = MathUtil.clamp(speed, -1, 1); // Even if speed is any number , it can't exceed the range of -1 to 1
         if(getAngle(angleMotor1) < 0.95 && getAngle(angleMotor1) > -0.007) { // IF we havent hit max rotations
-            angleMotor1.setControl(angleCycleOut.withOutput(speed * 1.5));
+            angleMotor1.setControl(angleCycleOut.withOutput(speed * 2.25));
+            
         }
-        if(getAngle(angleMotor2) > -2 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
+
+        if (getAngle(angleMotor1) > .85 || getAngle(angleMotor1) < 0) {
+            controller.setRumble(RumbleType.kBothRumble,1);
+        } 
+        if (getAngle(angleMotor1) <= .85 && getAngle(angleMotor1) >= 0) {
+            controller.setRumble(RumbleType.kBothRumble, 0);
+        }
+
+        if(getAngle(angleMotor2) > -1.05 && getAngle(angleMotor2) < 0.007) { // the 0.007 is to account for a little bit of rotation on stop causing it to go over the value
             angleMotor2.setControl(angleCycleOut.withOutput(-speed * 2));
         }
         SmartDashboard.putNumber("Angle Motor 1 (For = up)", getAngle(angleMotor1));
@@ -104,7 +116,7 @@ public class Shooter {
 
     public void stopAngle() {
         double kG = ShooterConstants.ANGLE_HOLD_KG;
-        angleMotor1.setControl(angleCycleOut.withOutput(kG));
+        angleMotor1.setControl(angleCycleOut.withOutput(kG + 0.005));
         angleMotor2.setControl(angleCycleOut.withOutput(-kG));
     }
 
@@ -116,7 +128,7 @@ public class Shooter {
             disableShoot();
         } else if (light) {
             isSpinning = true;
-            enableShoot(.2, .125);
+            enableShoot(.4, .295);
         } else {
             isSpinning = true;
             enableShoot(.65 * diddy, .3 * diddy);

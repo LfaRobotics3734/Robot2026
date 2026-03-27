@@ -7,13 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "StarttoLedpot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startIntake"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ldepot to shoot"
           }
         },
         {
@@ -25,13 +37,25 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.0
+            "waitTime": 1.0
           }
         },
         {
           "type": "named",
           "data": {
             "name": "idlerFeeder"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 8.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "halt"
           }
         }
       ]

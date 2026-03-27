@@ -228,14 +228,15 @@ public class RobotContainer {
     //   }));
 
 
-    new Trigger(() -> -m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.moveAngle(0.04)).finallyDo(() -> shooter.stopAngle()));
-    new Trigger(() -> -m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.moveAngle(-.04)).finallyDo(() -> shooter.stopAngle()));
+    new Trigger(() -> -m_xboxController.getLeftY() > 0.2).whileTrue(Commands.run(() -> shooter.moveAngle(0.015, m_xboxController)).finallyDo(() -> shooter.stopAngle()));
+    new Trigger(() -> -m_xboxController.getLeftY() < -0.2).whileTrue(Commands.run(() -> shooter.moveAngle(-.015, m_xboxController)).finallyDo(() -> shooter.stopAngle()));
     
       
       // Will either turn the spin motor on or off (runs each time left trigger button is pressed)
       m_xboxController.leftTrigger().onTrue(new InstantCommand(() -> shooter.configureShoot(1, false)));
       m_xboxController.b().onTrue(new InstantCommand(() -> intake.configureSpin(1)));
     m_xboxController.rightBumper().onTrue(new InstantCommand(() -> shooter.configureShoot(1, true)));
+    m_xboxController.rightBumper().onTrue(new InstantCommand(() -> feeder.configureFeedIdle(1)));
       // turns on indexer and feed at the same time
       m_xboxController.rightTrigger().onTrue(new InstantCommand(() -> {
         feeder.configureFeedIdle(1);
@@ -251,18 +252,18 @@ public class RobotContainer {
       }));
 
 
-
-      m_xboxController.y().onTrue(new InstantCommand(() -> {
-        System.out.println("Pressed Y with goingup as: " + goingUp);
-        yCount++;
-        if(goingUp) {
-          new Limit(climb.getMotor()).schedule();
-          goingUp = false;
-        } else {
-          new Max(climb.getMotor()).schedule();
-          goingUp = true;
-        }
-      }));
+      // CLIMB IS DISABLED BC BUMPERS TOO BIG :(
+      // m_xboxController.y().onTrue(new InstantCommand(() -> {
+      //   System.out.println("Pressed Y with goingup as: " + goingUp);
+      //   yCount++;
+      //   if(goingUp) {
+      //     new Limit(climb.getMotor()).schedule();
+      //     goingUp = false;
+      //   } else {
+      //     new Max(climb.getMotor()).schedule();
+      //     goingUp = true;
+      //   }
+      // }));
 
 
     // SwerveDrive JoyStick Below -> 
@@ -283,7 +284,7 @@ public class RobotContainer {
       .onFalse(new InstantCommand(() -> TeleopDrive.SetRotMultiplier(0)));
 
 
-      m_driverController.button(12).onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));  // Sets the gryo heading to point 0 -> The direction its pointing becomes forward essentially 
+      m_driverController.button(11).onTrue(new InstantCommand(() -> m_swerveDrive.zeroHeading()));  // Sets the gryo heading to point 0 -> The direction its pointing becomes forward essentially 
       // POV hat: up = zero heading (handled in TeleopDrive on POV-up edge); left/right/down in TeleopDrive
   }
 
@@ -307,7 +308,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    String autoPath = "trenchShoot";
+    String autoPath = "leftDepot";
     Limit.callCount++; // Just to say that next call it needs to lift
     Command autoCommand = new PathPlannerAuto(autoPath);
 
@@ -325,6 +326,11 @@ public class RobotContainer {
       feeder.configureFeedIdle(1);
     }));
 
+    NamedCommands.registerCommand("startIntake", new InstantCommand(() -> {
+      intake.configureSpin(1);
+    }));
+
+
     NamedCommands.registerCommand("startShooter", new InstantCommand(() -> {
       shooter.configureShoot(1, false);
     }));
@@ -332,6 +338,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("halt", new InstantCommand(() -> {
       shooter.configureShoot(1, false);
       feeder.configureFeedIdle(1);
+      intake.configureSpin(1);
     }));
 
     NamedCommands.registerCommand("climbMax", new InstantCommand(() -> {
